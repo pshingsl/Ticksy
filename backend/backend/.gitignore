@@ -38,7 +38,10 @@ out/
 
 # 환경변수
 .env
-application.yml
+
+# yaml
+backend/backend/src/main/resources/application.yaml
+docker-compose.yml
 
 # 빌드
 /build
