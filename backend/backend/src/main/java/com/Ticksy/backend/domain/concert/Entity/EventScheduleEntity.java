@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+// TODO: 기능 구현 성공 시 부하테스트 후 인덱스 적용할거임
 @Table(name = "event_schedule",
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_venue_date_time",
