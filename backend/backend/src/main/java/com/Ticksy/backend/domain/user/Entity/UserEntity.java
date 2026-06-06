@@ -43,18 +43,18 @@ public class UserEntity {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password", nullable = true, length = 255)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    // TODO: 33 ~ 37 소셜 미사용시 삭제 예정
-    @Column(name = "provider", nullable = true, length = 20)
-    private String provider;
+    // TODO: 33 ~ 37 여유가 생길 시 소셜 로그인 구현 때 사용
+    // @Column(name = "provider", nullable = true, length = 20)
+    // private String provider;
 
-    @Column(name = "provider_id", nullable = true, length = 100)
-    private String providerId;
+    // @Column(name = "provider_id", nullable = true, length = 100)
+    // private String providerId;
 
     @Column(name = "role", nullable = false, length = 20)
     private String role;
