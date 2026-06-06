@@ -37,7 +37,7 @@ public class VenueEntity {
     private LocalDateTime updatedAt;
 
     // 양방향시 사용하기
-    // @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
-    // @Builder.Default
-    // private List<ConcertEntity> concerts =  new ArrayList<>();
+     @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
+     @Builder.Default
+     private List<ConcertEntity> concerts =  new ArrayList<>();
 }
