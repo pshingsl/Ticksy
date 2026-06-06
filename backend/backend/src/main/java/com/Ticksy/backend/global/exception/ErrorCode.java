@@ -18,7 +18,9 @@ public enum ErrorCode {
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT_FOUND_USER", "존재하지 않는 회원입니다."),
     DELETED_USER(HttpStatus.UNAUTHORIZED, "DELETED_USER", "탈퇴한 회원입니다."),
     HAS_ACTIVE_RESERVATION(HttpStatus.BAD_REQUEST, "HAS_ACTIVE_RESERVATION", "확정된 예매 내역이 있어 탈퇴가 불가능합니다. 예매를 먼저 취소해주세요."),
-    SOCIAL_LOGIN_USER(HttpStatus.BAD_REQUEST, "SOCIAL_LOGIN_USER", "소셜 로그인 계정은 해당 기능을 사용할 수 없습니다."),
+    
+    // TODO: 소셜 로그인 구현 시 에러코드 주석 해제
+    // SOCIAL_LOGIN_USER(HttpStatus.BAD_REQUEST, "SOCIAL_LOGIN_USER", "소셜 로그인 계정은 해당 기능을 사용할 수 없습니다."),
 
     // 인증/인가
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "이메일 또는 비밀번호가 올바르지 않습니다."),
@@ -38,9 +40,9 @@ public enum ErrorCode {
     INVALID_VERIFICATION(HttpStatus.BAD_REQUEST, "INVALID_VERIFICATION", "이메일 인증이 완료되지 않았습니다."),
     NOT_FOUND_EMAIL(HttpStatus.BAD_REQUEST, "NOT_FOUND_EMAIL", "가입되지 않은 이메일입니다."),
 
-    // OAuth2
-    ALREADY_REGISTERED_EMAIL_SOCIAL(HttpStatus.BAD_REQUEST, "ALREADY_REGISTERED_EMAIL", "이미 일반 가입된 이메일입니다. 이메일 로그인을 이용해주세요."),
-    SOCIAL_LOGIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_LOGIN_FAILED", "소셜 로그인 처리 중 오류가 발생했습니다."),
+    // TODO: OAuth2 구현 시 에러코드 주석 해제 현재 기능이 많아서 소셜 로그인 구현 보류
+    // ALREADY_REGISTERED_EMAIL_SOCIAL(HttpStatus.BAD_REQUEST, "ALREADY_REGISTERED_EMAIL", "이미 일반 가입된 이메일입니다. 이메일 로그인을 이용해주세요."),
+    // SOCIAL_LOGIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SOCIAL_LOGIN_FAILED", "소셜 로그인 처리 중 오류가 발생했습니다."),
 
     // 공연장
     NOT_FOUND_VENUE(HttpStatus.NOT_FOUND, "NOT_FOUND_VENUE", "존재하지 않는 공연장입니다."),
@@ -49,9 +51,9 @@ public enum ErrorCode {
     NOT_FOUND_CONCERT(HttpStatus.NOT_FOUND, "NOT_FOUND_CONCERT", "존재하지 않는 공연입니다."),
     HAS_RESERVATION(HttpStatus.BAD_REQUEST, "HAS_RESERVATION", "예매 내역이 존재하여 해당 작업을 수행할 수 없습니다."),
 
-    // 회차
+    // TODO: 회차 에러코드 주석 처리 에러코드 기능 구현이 많아 여유시 확장 처리
     OT_FOUND_SCHEDULE(HttpStatus.NOT_FOUND, "NOT_FOUND_SCHEDULE", "존재하지 않는 회차입니다."),
-    DUPLICATE_SCHEDULE(HttpStatus.CONFLICT, "DUPLICATE_SCHEDULE", "동일 공연장에 동일 날짜/시간의 회차가 이미 존재합니다."),
+    // DUPLICATE_SCHEDULE(HttpStatus.CONFLICT, "DUPLICATE_SCHEDULE", "동일 공연장에 동일 날짜/시간의 회차가 이미 존재합니다."),
     BOOKING_NOT_OPEN_YET(HttpStatus.BAD_REQUEST, "BOOKING_NOT_OPEN_YET", "아직 예매 오픈 전입니다."),
 
     // 좌석
