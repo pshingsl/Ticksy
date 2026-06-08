@@ -1,6 +1,7 @@
 package com.Ticksy.backend.domain.seat.Entity;
 
 import com.Ticksy.backend.domain.concert.Entity.SectionEntity;
+import com.Ticksy.backend.domain.seat.enums.SeatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,8 +36,9 @@ public class SeatEntity {
     @Column(name = "col_num", nullable = false)
     private Integer colNum;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status; // AVAILABLE, RESERVED
+    private SeatStatus status; // AVAILABLE, RESERVED
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -48,11 +50,11 @@ public class SeatEntity {
 
     // 예매 완료 상태 변경
     public void reserve() {
-        this.status = "RESERVED";
+        this.status = SeatStatus.RESERVED;
     }
 
     // 예매 취소 상태 변경
     public void release() {
-        this.status = "AVAILABLE";
+        this.status = SeatStatus.AVAILABLE;
     }
 }

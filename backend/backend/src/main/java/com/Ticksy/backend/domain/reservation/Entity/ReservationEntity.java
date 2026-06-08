@@ -1,6 +1,7 @@
 package com.Ticksy.backend.domain.reservation.Entity;
 
 import com.Ticksy.backend.domain.concert.Entity.EventScheduleEntity;
+import com.Ticksy.backend.domain.reservation.enums.ReservationStatus;
 import com.Ticksy.backend.domain.user.Entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,8 +42,9 @@ public class ReservationEntity {
     @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status; // CONFIRMED, CANCELLED
+    private ReservationStatus status; // CONFIRMED, CANCELLED
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -59,6 +61,6 @@ public class ReservationEntity {
 
     // 예매 취소
     public void cancel() {
-        this.status = "CANCELLED";
+        this.status = ReservationStatus.CANCELLED;
     }
 }

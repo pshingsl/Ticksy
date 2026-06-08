@@ -1,5 +1,6 @@
 package com.Ticksy.backend.domain.payment.Entity;
 
+import com.Ticksy.backend.domain.payment.enums.PaymentStatus;
 import com.Ticksy.backend.domain.reservation.Entity.ReservationEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,8 +34,9 @@ public class PaymentEntity {
     @Column(name = "amount", nullable = false)
     private  Integer amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status; // DONE, CANCELLED, PARTIAL_CANCELLED
+    private PaymentStatus status; // DONE, CANCELLED, PARTIAL_CANCELLED
 
     @Column(name = "paid_at", nullable = true)
     private LocalDateTime paidAt;
@@ -52,13 +54,13 @@ public class PaymentEntity {
 
     // 전액 취소
     public void cancel(LocalDateTime cancelledAt) {
-        this.status = "CANCELLED";
+        this.status = PaymentStatus.CANCELLED;
         this.cancelledAt = cancelledAt;
     }
 
     // 부분 취소(70% 환불)
     public void partialCancel(LocalDateTime cancelledAt) {
-        this.status = "PARTIAL_CANCELLED";
+        this.status = PaymentStatus.PARTIAL_CANCELLED;
         this.cancelledAt = cancelledAt;
     }
 }

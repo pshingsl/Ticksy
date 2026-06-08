@@ -1,5 +1,6 @@
 package com.Ticksy.backend.domain.concert.Entity;
 
+import com.Ticksy.backend.domain.concert.enums.ScheduleStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -60,8 +61,9 @@ public class EventScheduleEntity {
     @Column(name = "booking_open_at", nullable = false)
     private LocalDateTime bookingOpenAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status; // UPCOMING, OPEN, SOLD_OUT, CLOSED
+    private ScheduleStatus status; // UPCOMING, OPEN, SOLD_OUT, CLOSED
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -72,33 +74,33 @@ public class EventScheduleEntity {
     private LocalDateTime updatedAt;
 
     /*
-    * OneToMany로 한 이유
-    * - 하나의 회차는 여러 구역을 가진다.
-    * - 따라서 구역을 여러개를 담아야 하기 때문애 리스트로 저장  == 하나의 회차는 여러 구역을 가지므로 List 컬렉션으로 관리한다.
-    * ㄴ 현재 객체 기준으로 생각하기
-    * - DB에서 sections테이블에 외래키로 schedule_id가 참조됨
-    *
-    * - mappedBy: 양방향 관계를 맺을때 사용.
-    * - mappedBy는 연관관계의 주인이 아님을 의미한다.
-    * - 주인의 매핑을 참조(읽기)만 가능하다.
-    * - 실제 FK 관리(연관관계 관리)는 상대 엔티티(SectionEntity)가 담당한다.
-    *- mappedBy = "schedule" 은 SectionEntity의 schedule 필드와 매핑됨을 의미한다.
-    *
-    * - @Builder.Default
-    * - 일반 빌더를 사용하면 초기화 무시되는 문제가 생긴다.
-    * - 즉, EventScheduleEntity.builder().build();이면 sections == null로 처리될 수 있다.
-    * */
+     * OneToMany로 한 이유
+     * - 하나의 회차는 여러 구역을 가진다.
+     * - 따라서 구역을 여러개를 담아야 하기 때문애 리스트로 저장  == 하나의 회차는 여러 구역을 가지므로 List 컬렉션으로 관리한다.
+     * ㄴ 현재 객체 기준으로 생각하기
+     * - DB에서 sections테이블에 외래키로 schedule_id가 참조됨
+     *
+     * - mappedBy: 양방향 관계를 맺을때 사용.
+     * - mappedBy는 연관관계의 주인이 아님을 의미한다.
+     * - 주인의 매핑을 참조(읽기)만 가능하다.
+     * - 실제 FK 관리(연관관계 관리)는 상대 엔티티(SectionEntity)가 담당한다.
+     *- mappedBy = "schedule" 은 SectionEntity의 schedule 필드와 매핑됨을 의미한다.
+     *
+     * - @Builder.Default
+     * - 일반 빌더를 사용하면 초기화 무시되는 문제가 생긴다.
+     * - 즉, EventScheduleEntity.builder().build();이면 sections == null로 처리될 수 있다.
+     * */
     @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
     @Builder.Default
     private List<SectionEntity> sections = new ArrayList<>();
 
     // 예매 오픈 여부 확인
     public boolean isBookingOpen() {
-        return LocalDateTime.now().isAfter(bookingOpenAt) ;
+        return LocalDateTime.now().isAfter(bookingOpenAt);
     }
 
     // 상태 변경
-    public void updateStatus(String status) {
+    public void updateStatus(ScheduleStatus status) {
         this.status = status;
     }
 }

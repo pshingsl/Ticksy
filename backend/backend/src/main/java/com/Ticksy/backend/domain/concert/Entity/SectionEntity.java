@@ -1,5 +1,7 @@
 package com.Ticksy.backend.domain.concert.Entity;
 
+import com.Ticksy.backend.domain.concert.enums.SeatGrade;
+import com.Ticksy.backend.domain.seat.Entity.SeatEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,8 +33,9 @@ public class SectionEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name; // VIP구역, R구역 등
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "grade", nullable = false, length = 20)
-    private String grade; // VIP, R, S, GENERAL
+    private SeatGrade grade; // VIP, R, S, GENERAL
 
     @Column(name = "price", nullable = false)
     private Integer price;
