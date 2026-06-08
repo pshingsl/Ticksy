@@ -1,5 +1,6 @@
 package com.Ticksy.backend.domain.user.Entity;
 
+import com.Ticksy.backend.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -56,8 +57,9 @@ public class UserEntity {
     // @Column(name = "provider_id", nullable = true, length = 100)
     // private String providerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private String role;
+    private UserRole role;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
