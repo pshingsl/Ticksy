@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @Entity
-// TODO: 부하 테스트 후 인덱스 적용 후 비교하기
+// TODO: 부하 테스트 후 인덱스 적용 후 비교
 @Table(name = "reservation_seats",
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_reservation_seat",
