@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
-// 비밀번호 변경 요청
 @Getter
+// 비밀번호 변경 요청
 public class PasswordChangeRequest {
 
     @NotBlank(message = "현재 비밀번호를 입력해주세요.")

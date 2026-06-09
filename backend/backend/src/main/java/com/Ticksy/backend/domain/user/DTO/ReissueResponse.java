@@ -3,9 +3,9 @@ package com.Ticksy.backend.domain.user.DTO;
 import lombok.Builder;
 import lombok.Getter;
 
-// Access Token 재발급 응답
 @Getter
 @Builder
+// Access Token 재발급 응답
 public class ReissueResponse {
 
     private String accessToken;

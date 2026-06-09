@@ -4,9 +4,9 @@ import com.Ticksy.backend.domain.user.Entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
-// 회원가입 응답
 @Getter
 @Builder
+// 회원가입 응답
 public class SignupResponse {
 
     private Long userId;

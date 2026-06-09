@@ -3,8 +3,8 @@ package com.Ticksy.backend.domain.user.DTO;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
-// 로그인 요청
 @Getter
+// 로그인 요청
 public class LoginRequest {
 
     @NotBlank(message = "이메일을 입력해주세요.")

@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
-// 회원가입 요청
-// ㄴ
 @Getter
+// 회원가입 요청
 public class SignupRequest {
 
     @NotBlank(message = "비밀번호를 입력 해주세요")

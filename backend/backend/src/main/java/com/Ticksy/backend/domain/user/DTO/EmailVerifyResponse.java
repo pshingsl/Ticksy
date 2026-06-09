@@ -1,12 +1,12 @@
 package com.Ticksy.backend.domain.user.DTO;
 
-// 이메일 인증 확인 응답
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+// 이메일 인증 확인 응답
 public class EmailVerifyResponse {
 
     private boolean isVerified;

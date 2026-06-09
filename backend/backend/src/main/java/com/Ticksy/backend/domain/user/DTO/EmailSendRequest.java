@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
-// 이메일 인증번호 발송
 @Getter
+// 이메일 인증번호 발송
 public class EmailSendRequest {
 
     @NotBlank(message = "이메일을 입력해주세요.")

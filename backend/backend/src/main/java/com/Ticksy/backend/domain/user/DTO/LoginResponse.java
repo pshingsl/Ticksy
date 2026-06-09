@@ -1,11 +1,11 @@
 package com.Ticksy.backend.domain.user.DTO;
 
-import com.Ticksy.backend.domain.user.Entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+// 로그인 응답
 public class LoginResponse {
 
     private String accessToken;
