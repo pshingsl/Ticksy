@@ -1,0 +1,23 @@
+package com.Ticksy.backend.domain.user.DTO;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
+
+@Getter
+// 회원가입 요청
+public class SignupRequest {
+
+    @NotBlank(message = "비밀번호를 입력 해주세요")
+    @Pattern(
+            regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$",
+            message = "비밀번호는 8자 이상이며 특수문자를 포함해야 합니다."
+    )
+    private String password;
+
+    @NotBlank(message = "이름을 입력해주세요.")
+    private String name;
+
+    @NotBlank(message = "이메일 인증번호를 입력해주세요.")
+    private String verificationCode;
+}
