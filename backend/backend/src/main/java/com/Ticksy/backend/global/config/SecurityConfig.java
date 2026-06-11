@@ -75,17 +75,17 @@ public class SecurityConfig {
                         // 인증 불필요 경로
                         // 인증(로그인)이 전혀 필요 없는 경로 -> 비로그인자도 접근 가능
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/concerts/**",
+                                "/auth/**",
+                                "/concerts/**",
                                 "/swagger-ui/**",
                                 "/api-docs/**"
                         ).permitAll() // 위의 주소(64~68)들은 로그인 없이 접근 허용(permitAll()) 시킴
 
                         // 인증(로그인) 필요 경로 -> 인증 안되면 이용 불가능
                         // .authenticated(): 여기 들어오는 것은 무조건 인증(로그인)이 되어야 접속 가능                        .requestMatchers("/api/my/**").authenticated()
-                        .requestMatchers("/api/seats/**").authenticated()
-                        .requestMatchers("/api/reservations/**").authenticated()
-                        .requestMatchers("/api/payments/**").authenticated()
+                        .requestMatchers("/seats/**").authenticated()
+                        .requestMatchers("/reservations/**").authenticated()
+                        .requestMatchers("/payments/**").authenticated()
 
                         // 적어두지 않은 나머지 모든 API 요청들도 전부 로그인이 필요
                         .anyRequest().authenticated() // 위에 안 적은 자잘한 주소들도 100% 전부 무조건 인증(로그인)을 거쳐야만 통과

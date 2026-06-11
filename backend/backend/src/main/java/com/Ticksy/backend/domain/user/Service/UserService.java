@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -30,7 +30,7 @@ public class UserService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh:token:";
     private static final long REFRESH_TTL_DAYS = 7;
 
-    // 이메일 중복확인
+    // 이메일 중복 확인
     public EmailCheckResponse checkEmail(String email) {
         boolean isDuplicate = userRepository.existsByEmail(email);
         return EmailCheckResponse.of(isDuplicate);
@@ -44,16 +44,16 @@ public class UserService {
         emailService.sendVerificationCode(email);
     }
 
-    // 인증번호 확인
-    public EmailCheckResponse checkVerifyEmail(EmailVerifyRequest request) {
+    // 이메일 인증번호 확인
+    public EmailVerifyResponse verifyEmail(EmailVerifyRequest request) {
         emailService.verifyCode(request.getEmail(), request.getCode());
-        return EmailCheckResponse.of(true);
+        return EmailVerifyResponse.of(true);
     }
 
     // 회원가입
     @Transactional
     public SignupResponse signup(SignupRequest request) {
-        // 이메일 중복확인
+        // 이메일 중복 확인
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
@@ -67,7 +67,7 @@ public class UserService {
         // 비밀번호 암호화 후 저장
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .role(UserRole.USER)
                 .isDeleted(false)
@@ -83,8 +83,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         // 회원 조회
-        UserEntity user = userRepository.findByEmailAndIsDeletedFalse(request.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+        UserEntity user = userRepository
+                .findByEmailAndIsDeletedFalse(request.getEmail())
+                .orElseThrow(() ->
+                        new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
         // 탈퇴 회원 확인
         if (user.isDeleted()) {
@@ -119,12 +121,12 @@ public class UserService {
 
     // Access Token 재발급
     public ReissueResponse reissue(String refreshToken) {
-        // refresh 토큰 검즘
-        jwtProvider.validateAccessToken(refreshToken);
+        // Refresh Token 검증
+        jwtProvider.validateRefreshToken(refreshToken);
 
         Long userId = jwtProvider.getUserId(refreshToken);
 
-        // Redis에서 Refresh 토큰 확인
+        // Redis에서 Refresh Token 확인
         String savedToken = redisTemplate.opsForValue()
                 .get(REFRESH_TOKEN_PREFIX + userId);
 
@@ -151,31 +153,43 @@ public class UserService {
         log.info("로그아웃 완료: userId={}", userId);
     }
 
-    // 비밀번호 변경
+    // 비밀번호 변경 (MP-02)
+    @Transactional
     public void changePassword(Long userId, PasswordChangeRequest request) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         // 현재 비밀번호 확인
-        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }
 
         // 새 비밀번호 저장
-        user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+        user.updatePassword(
+                passwordEncoder.encode(request.getNewPassword())
+        );
 
-        // 보안을 위해 Refresh Token 삭제(자동 로그아웃)
+        // 보안을 위해 Refresh Token 삭제 (자동 로그아웃)
         redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
         log.info("비밀번호 변경 완료: userId={}", userId);
     }
 
+    // 회원 탈퇴 (MEM-05)
     @Transactional
     public void withdraw(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
+        if(user.isDeleted()) {
+            throw new CustomException(ErrorCode.DELETED_USER);
+        }
+
+        // 확정된 예매 내역 확인은 ReservationService에서 처리
+        // 여기서는 소프트 삭제만
         user.delete();
 
+        // Refresh Token 삭제
         redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
         log.info("회원 탈퇴 완료: userId={}", userId);
     }

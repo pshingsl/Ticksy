@@ -1,9 +1,13 @@
 package com.Ticksy.backend.global.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "success", "data", "code", "message" })
 @Builder
 public class ApiResponse<T> {
 
