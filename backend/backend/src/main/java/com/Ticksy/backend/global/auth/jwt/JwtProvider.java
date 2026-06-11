@@ -62,7 +62,7 @@ public class JwtProvider {
     // Refresh token 생성
     // Access token이 만료되었을 떄 다시 새 로그인을 안 해도 되게끔 증증해 주느 수명이 긴 인증권 -> 최초로 입장이 성공하면 성공 기준을 7일동안 검증 필요 없이 입장가능
     // 내부에 권한(role) 같은 부가 정보는 넣지 않고, 오직 주인 확인을 위한 userId만 최소한으로 넣어서 보안을 높임.
-    public String craeteRefreshToken(Long userId) {
+    public String createRefreshToken(Long userId) {
         return Jwts.builder()
                 .subject(String.valueOf(userId)) // 토큰의 주인(userId)만 기록
                 .issuedAt(new Date()) // 토큰이 발행된 시간을 기록
