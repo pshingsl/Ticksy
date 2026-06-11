@@ -186,7 +186,7 @@ public class UserService {
             throw new CustomException(ErrorCode.DELETED_USER);
         }
 
-        // 확정된 예매 내역 확인은 ReservationService에서 처리
+        // 확정된 예매 내역 확인은 ReservationService에서 처리 예정
         // 여기서는 소프트 삭제만
         user.delete();
 

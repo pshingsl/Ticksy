@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 // 회원가입 요청
 public class SignupRequest {
+
     @NotBlank(message = "이메일을 입력 해주세요")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
