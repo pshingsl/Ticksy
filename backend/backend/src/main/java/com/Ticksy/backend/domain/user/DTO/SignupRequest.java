@@ -21,7 +21,4 @@ public class SignupRequest {
 
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
-
-    @NotBlank(message = "이메일 인증번호를 입력해주세요.")
-    private String verificationCode;
 }

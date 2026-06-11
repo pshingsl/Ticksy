@@ -59,10 +59,7 @@ public class UserService {
         }
 
         // 이메일 인증 확인
-        emailService.verifyCode(
-                request.getEmail(),
-                request.getVerificationCode()
-        );
+        emailService.checkVerified(request.getEmail());
 
         // 비밀번호 암호화 후 저장
         UserEntity user = UserEntity.builder()
@@ -74,6 +71,10 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+
+        // 인증 완료 상태 삭제
+        emailService.deleteVerified(request.getEmail());
+
         log.info("회원가입 완료: {}", user.getEmail());
 
         return SignupResponse.from(user);
