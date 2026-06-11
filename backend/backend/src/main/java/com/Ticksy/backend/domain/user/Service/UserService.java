@@ -175,7 +175,7 @@ public class UserService {
         log.info("비밀번호 변경 완료: userId={}", userId);
     }
 
-    // 회원 탈퇴 (MEM-05)
+    // 회원 탈퇴
     @Transactional
     public void withdraw(Long userId) {
         UserEntity user = userRepository.findById(userId)

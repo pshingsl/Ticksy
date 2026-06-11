@@ -151,7 +151,7 @@ public class SecurityConfig {
 
         // 어떤 헤더 정보든 상관없이 전부 허용
         // 어떤 HTTP 헤더 데이터를 실어 보내든 상관없이 전부 허용.
-        // Authorization 헤더에 Bearer 토큰을 실어 나를 것이므로 이 헤더 프리패스 설정("*")이 반드시 필요
+        // Authorization 헤더에 Bearer 토큰을 실어 나를 것이므로 이 헤더 프리패스 설정("*")이 반드시 필요함
         config.setAllowedHeaders(List.of("*"));
 
         // 자바스크립트(Axios, Fetch 등) 요청 시 쿠키나 인증 헤더 정보를 주고받을 수 있도록 자격 증명을 전면 허용(true)

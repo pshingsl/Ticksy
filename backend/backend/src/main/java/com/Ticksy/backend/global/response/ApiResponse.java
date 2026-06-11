@@ -16,7 +16,7 @@ public class ApiResponse<T> {
     private final String code;
     private final String message;
 
-    // 응답 성공(데이터 존재)
+    // 응답 성공(데이터 존재 시)
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
                 .success(true)
