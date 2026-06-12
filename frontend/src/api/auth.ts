@@ -2,20 +2,26 @@ import api from './axios';
 
 // 이메일 중복 확인
 export const checkEmail = async (email: string) => {
+  // get방식으로 쿼리 파라미터로 이메일을 실어서 백엔드에 요청
   const response = await api.get(
     `/auth/check-email?email=${email}`
   );
+
+  // Axios 응답 객체(HTTP 상태코드).Axios 내부의 실제 데이터.백엔드가 실어 보낸 데이터
+  // 상태코드와 백엔드의 ApiResponse객체의 ApiResponse구조 내부의 DTO를 반환
   return response.data.data; // { isDuplicate: boolean }
 };
 
 // 이메일 인증번호 발송
 export const sendVerificationCode = async (email: string) => {
+  // 포스트 방식으로 JSON 바디에 {이메일:값}을 담아 보낸다.
   const response = await api.post('/auth/email/send', { email });
   return response.data;
 };
 
 // 이메일 인증번호 확인
 export const verifyEmail = async (email: string, code: string) => {
+  // {}은 백엔드에 정의한 디티오들을 담는다.
   const response = await api.post('/auth/email/verify', {
     email,
     code,

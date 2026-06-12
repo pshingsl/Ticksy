@@ -5,8 +5,10 @@ import { useAuthStore } from '../../store/authStore';
 
 export default function MyPage() {
   const navigate = useNavigate();
+  // Zustand 창고에서 로그아웃 처리 함수와 현재 로그인 유저 이름을 실시간 연동
   const { logout: storeLogout, userName } = useAuthStore();
 
+  // 비번 조작 폼 상태 관리(현재 비번, 새로운 비번, 새로운 비번 검사, 에러, 성공, 로딩)
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
@@ -17,8 +19,9 @@ export default function MyPage() {
   // 로그아웃
   const handleLogout = async () => {
     try {
-      await logout();
+      await logout(); // 로그아웃 요청하면 백엔드 세션/레디스 토큰 파기 요청
     } finally {
+      // 백엔드가 터지든 성공하든 상관없이 프론트엔드 장부(로컬스토리지)는 무조건 청소한다. (finally 구문 활용)
       storeLogout();
       navigate('/login');
     }
@@ -26,10 +29,13 @@ export default function MyPage() {
 
   // 비밀번호 변경
   const handleChangePassword = async () => {
+    // 1. 현재비번이랑 새로운 비번이 입력되지 않는다면 에러 호출
     if (!currentPassword || !newPassword) {
       setPwError('모든 항목을 입력해주세요.');
       return;
     }
+
+    // 2. 새로운 비번 입력 후 새로운 비번 같은지 검사
     if (newPassword !== newPasswordConfirm) {
       setPwError('새 비밀번호가 일치하지 않습니다.');
       return;
@@ -48,10 +54,12 @@ export default function MyPage() {
     setPwSuccess('');
 
     try {
+      // 백엔드로 구 패스워드와 신 패스워드를 묶어 전송
       await changePassword(currentPassword, newPassword);
       setPwSuccess(
         '비밀번호가 변경되었습니다. 다시 로그인해주세요.'
       );
+      // 디바운스/타이머 효과: 유저가 성공 메시지를 읽을 시간을 2초간 준 뒤 가입 창고를 부수고 로그아웃 처리
       setTimeout(() => {
         storeLogout();
         navigate('/login');
@@ -70,19 +78,21 @@ export default function MyPage() {
 
   // 회원 탈퇴
   const handleWithdraw = async () => {
+    // 브라우저의 기본 확인창(Confirm)을 띄워 유저의 고의성 의사를 한 번 더 심사
     const confirmed = window.confirm(
       '정말 탈퇴하시겠습니까?'
     );
-    if (!confirmed) return;
+    if (!confirmed) return; // '취소'를 누르면 즉시 함수를 자진 중단합니다.
 
     setLoading(true);
-    try {
-      await withdraw();
+    try { 
+      await withdraw(); // 백엔드 DB 유저 Soft/Hard Delete 트리거 호출
       alert('탈퇴가 완료되었습니다.');
       storeLogout();
       navigate('/login');
     } catch (err: any) {
       const code = err.response?.data?.code;
+      // 무결성 예외 처리: 만약 백엔드에서 예매 정보 연관 관계가 묶여있어 에러를 뱉었다면 분기 안내
       if (code === 'HAS_ACTIVE_RESERVATION') {
         alert(
           '예매 내역이 있어 탈퇴가 불가능합니다.\n예매를 먼저 취소해주세요.'
