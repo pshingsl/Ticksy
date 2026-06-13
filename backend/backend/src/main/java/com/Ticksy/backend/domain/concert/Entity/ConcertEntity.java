@@ -57,7 +57,7 @@ public class ConcertEntity {
 
     @OneToMany(mappedBy = "concert", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<EventScheduleEntity> schedule = new ArrayList<>();
+    private List<EventScheduleEntity> schedules = new ArrayList<>();
 
     // 삭제
     public void delete() {

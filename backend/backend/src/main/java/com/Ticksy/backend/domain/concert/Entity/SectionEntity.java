@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity
 // TODO: 부하 테스트 후 인덱스 적용해서 비교하기
@@ -57,5 +57,5 @@ public class SectionEntity {
     // 하나의 구역에는 여러 좌석이 존재한다.
     @OneToMany(mappedBy = "section", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<SeatEntity> seat = new ArrayList<>();
+    private List<SeatEntity> seats = new ArrayList<>();
 }
