@@ -1,4 +1,4 @@
-package com.Ticksy.backend.domain.user.DTO;
+package com.Ticksy.backend.domain.user.DTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
