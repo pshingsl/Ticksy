@@ -1,6 +1,10 @@
 package com.Ticksy.backend.domain.user.Controller;
 
-import com.Ticksy.backend.domain.user.DTO.*;
+import com.Ticksy.backend.domain.user.DTO.Request.EmailSendRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.EmailVerifyRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.LoginRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.SignupRequest;
+import com.Ticksy.backend.domain.user.DTO.Response.*;
 import com.Ticksy.backend.domain.user.Service.UserService;
 import com.Ticksy.backend.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -31,7 +35,7 @@ public class AuthController {
 
     // 이메일 인증번호 확인
     @PostMapping("/email/verify")
-    public ResponseEntity<ApiResponse<EmailVerifyResponse>> verifyEmail(@RequestBody @Valid EmailVerifyRequest  request) {
+    public ResponseEntity<ApiResponse<EmailVerifyResponse>> verifyEmail(@RequestBody @Valid EmailVerifyRequest request) {
         return ResponseEntity.ok(ApiResponse.success(userService.verifyEmail(request)));
     }
 

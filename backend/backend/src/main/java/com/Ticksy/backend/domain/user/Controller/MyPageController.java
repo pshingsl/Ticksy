@@ -1,6 +1,6 @@
 package com.Ticksy.backend.domain.user.Controller;
 
-import com.Ticksy.backend.domain.user.DTO.PasswordChangeRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.PasswordChangeRequest;
 import com.Ticksy.backend.domain.user.Service.UserService;
 import com.Ticksy.backend.global.response.ApiResponse;
 import jakarta.validation.Valid;

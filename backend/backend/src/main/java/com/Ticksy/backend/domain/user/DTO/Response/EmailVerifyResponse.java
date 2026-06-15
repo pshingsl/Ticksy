@@ -1,4 +1,4 @@
-package com.Ticksy.backend.domain.user.DTO;
+package com.Ticksy.backend.domain.user.DTO.Response;
 
 
 import lombok.Builder;

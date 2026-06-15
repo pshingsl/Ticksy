@@ -1,6 +1,10 @@
 package com.Ticksy.backend.domain.user.Service;
 
-import com.Ticksy.backend.domain.user.DTO.*;
+import com.Ticksy.backend.domain.user.DTO.Request.EmailVerifyRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.LoginRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.PasswordChangeRequest;
+import com.Ticksy.backend.domain.user.DTO.Request.SignupRequest;
+import com.Ticksy.backend.domain.user.DTO.Response.*;
 import com.Ticksy.backend.domain.user.Entity.UserEntity;
 import com.Ticksy.backend.domain.user.Repository.UserRepository;
 import com.Ticksy.backend.domain.user.enums.UserRole;
