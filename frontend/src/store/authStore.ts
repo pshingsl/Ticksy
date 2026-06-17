@@ -38,4 +38,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userName');
     set({ isLoggedIn: false, userName: null }); // 전역 상태도 비로그인 모드로 리셋
-}));
+  }
+ })
+);
