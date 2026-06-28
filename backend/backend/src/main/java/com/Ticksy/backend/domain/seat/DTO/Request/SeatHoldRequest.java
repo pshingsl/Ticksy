@@ -11,7 +11,6 @@ import java.util.List;
 @Schema(description = "좌석 선점 요청")
 public class SeatHoldRequest {
 
-
     @Schema(description = "회차 ID", example = "1")
     @NotNull(message = "회차 ID는 필수입니다.")
     private Long scheduleId;
