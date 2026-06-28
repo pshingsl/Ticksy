@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface ConcertRepository extends JpaRepository<Long, ConcertEntity> {
+public interface ConcertRepository extends JpaRepository<ConcertEntity, Long> {
 
     // 공연 상세 조회
     // select * from concert where concertId =? and is_deleted = false;

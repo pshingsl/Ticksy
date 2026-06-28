@@ -25,9 +25,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ConcertService {
 
-    private ConcertRepository concertRepository;
-    private EventScheduleRepository eventScheduleRepository;
-    private VenueRepository venueRepository;
+    private final ConcertRepository concertRepository;
+    private final EventScheduleRepository eventScheduleRepository;
+    private final VenueRepository venueRepository;
 
     // 공연 목록 조회
     public ConcertListPageResponse getConcertList(
@@ -124,7 +124,7 @@ public class ConcertService {
                 .toList();
 
         // 등급별 가격 (중복 제거, 첫 회차 기준)
-        List<GradeResponse>  gradeResponses = schedules.stream()
+        List<GradeResponse> gradeResponses = schedules.stream()
                 .flatMap(s -> s.getSections().stream())
                 .map(sec -> GradeResponse.of(sec.getGrade(), sec.getPrice()))
                 .distinct()
