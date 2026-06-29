@@ -5,6 +5,7 @@ import MyPage from './pages/auth/MyPage';
 import ConcertListPage from './pages/concert/ConcertListPage';
 import ConcertDetailPage from './pages/concert/ConcertDetailPage';
 import PrivateRoute from './components/PrivateRoute';
+import SeatPage from './pages/seat/SeatPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         {/* 인증 필요 라우트 */}
         <Route element={<PrivateRoute />}>
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/seats/:scheduleId" element={<SeatPage />} />
         </Route>
         {/* 기본경로 */}
         <Route path="/" element={<LoginPage />} />
