@@ -84,6 +84,9 @@ export default function ConcertDetailPage() {
       return;
     }
 
+    // concertId 저장 후 이동
+    localStorage.setItem('currentConcertId', String(concert?.concertId));
+
     // 좌석 배치도 페이지로 이동 (좌석 도메인 구현 후 연결)
     navigate(`/seats/${schedule.scheduleId}`);
   };
