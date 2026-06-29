@@ -77,12 +77,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/concerts/**",
+                                "/concerts/search",
+                                "/concets/{concertId:[0-9]+}",
                                 "/swagger-ui/**",
                                 "/api-docs/**"
                         ).permitAll() // 위의 주소(64~68)들은 로그인 없이 접근 허용(permitAll()) 시킴
 
                         // 인증(로그인) 필요 경로 -> 인증 안되면 이용 불가능
-                        // .authenticated(): 여기 들어오는 것은 무조건 인증(로그인)이 되어야 접속 가능                        .requestMatchers("/api/my/**").authenticated()
+                        // .authenticated(): 여기 들어오는 것은 무조건 인증(로그인)이 되어야 접속 가능
+                        .requestMatchers("/concerts/*/schedules/**").authenticated()
+                        .requestMatchers("/my/**").authenticated()
                         .requestMatchers("/seats/**").authenticated()
                         .requestMatchers("/reservations/**").authenticated()
                         .requestMatchers("/payments/**").authenticated()
