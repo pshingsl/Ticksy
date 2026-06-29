@@ -52,7 +52,7 @@ public enum ErrorCode {
     HAS_RESERVATION(HttpStatus.BAD_REQUEST, "HAS_RESERVATION", "예매 내역이 존재하여 해당 작업을 수행할 수 없습니다."),
 
     // TODO: 회차 에러코드 주석 처리 에러코드 기능 구현이 많아 여유시 확장 처리
-    OT_FOUND_SCHEDULE(HttpStatus.NOT_FOUND, "NOT_FOUND_SCHEDULE", "존재하지 않는 회차입니다."),
+    NOT_FOUND_SCHEDULE(HttpStatus.NOT_FOUND, "NOT_FOUND_SCHEDULE", "존재하지 않는 회차입니다."),
     // DUPLICATE_SCHEDULE(HttpStatus.CONFLICT, "DUPLICATE_SCHEDULE", "동일 공연장에 동일 날짜/시간의 회차가 이미 존재합니다."),
     BOOKING_NOT_OPEN_YET(HttpStatus.BAD_REQUEST, "BOOKING_NOT_OPEN_YET", "아직 예매 오픈 전입니다."),
 
