@@ -52,7 +52,7 @@ public class TossPaymentService {
     }
 
     // Toss 환불 API 호출
-    public void cancelPayments(String paymentKey, String cancelReason, Integer cancelAmount) {
+    public void cancelPayment(String paymentKey, String cancelReason, Integer cancelAmount) {
         HttpHeaders headers = createHeaders();
         Map<String, Object> body = new HashMap<>();
         body.put("cancelReason", cancelReason);
