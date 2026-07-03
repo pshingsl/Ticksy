@@ -16,7 +16,7 @@ public class ReservationPreviewResponse {
     private LocalDate eventDate;
     private LocalTime eventTime;
     private String venueName;
-    private List<SeatPreviewItem> seat;
+    private List<SeatPreviewItem> seats;
     private Integer totalPrice;
     private LocalDateTime holdExpiredAt;
 
