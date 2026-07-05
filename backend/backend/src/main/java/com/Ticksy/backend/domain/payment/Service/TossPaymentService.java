@@ -79,6 +79,11 @@ public class TossPaymentService {
 
     // Basic Auth 헤더 생성 (Toss 인증 방식)
     private HttpHeaders createHeaders() {
+        String secretKey = tossPaymentConfig.getSecretKey();
+
+        // 🚨 [로그 추가] 현재 로직에 주입된 실제 시크릿 키의 상태를 콘솔창에서 확인해보세요.
+        log.info("현재 주입된 Toss Secret Key: [{}] (길이: {})", secretKey, (secretKey != null ? secretKey.length() : 0));
+
         String credentials = tossPaymentConfig.getSecretKey() + ":";
         String encode = Base64.getEncoder().encodeToString(
                 credentials.getBytes(StandardCharsets.UTF_8)
