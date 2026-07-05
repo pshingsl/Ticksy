@@ -14,7 +14,7 @@ public interface ReservationSeatRepository extends JpaRepository<ReservationSeat
     // 예매에 포함된 좌석목록
     @Query("SELECT rs FROM ReservationSeatEntity rs " +
             "JOIN FETCH rs.seat s " +
-            "JOIN FETCH rs.section sec " +
+            "JOIN FETCH s.section sec " +
             "WHERE rs.reservation.reservationId = :reservationId")
     List<ReservationSeatEntity> findWithSeatByReservationId(
             @Param("reservationId") Long reservationId
