@@ -1,4 +1,4 @@
-package com.Ticksy.backend.domain.seat.Repository;
+package com.Ticksy.backend.domain.concert.Repository;
 
 import com.Ticksy.backend.domain.concert.Entity.SectionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

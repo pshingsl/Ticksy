@@ -3,27 +3,24 @@ package com.Ticksy.backend.domain.reservation.Service;
 import com.Ticksy.backend.domain.concert.Entity.EventScheduleEntity;
 import com.Ticksy.backend.domain.concert.Entity.SectionEntity;
 import com.Ticksy.backend.domain.concert.Repository.EventScheduleRepository;
+import com.Ticksy.backend.domain.concert.Repository.SectionRepository;
 import com.Ticksy.backend.domain.payment.DTO.Request.PaymentConfirmDto;
 import com.Ticksy.backend.domain.payment.DTO.Request.PaymentRequestDto;
 import com.Ticksy.backend.domain.payment.DTO.Response.PaymentConfirmResponse;
 import com.Ticksy.backend.domain.payment.DTO.Response.PaymentReadyResponse;
 import com.Ticksy.backend.domain.payment.Entity.PaymentEntity;
+import com.Ticksy.backend.domain.payment.enums.PaymentStatus;
 import com.Ticksy.backend.domain.payment.Repository.PaymentRepository;
 import com.Ticksy.backend.domain.payment.Service.OrderRedisService;
 import com.Ticksy.backend.domain.payment.Service.TossPaymentService;
-import com.Ticksy.backend.domain.payment.enums.PaymentStatus;
-import com.Ticksy.backend.domain.reservation.DTO.Response.ReservationCancelResponse;
-import com.Ticksy.backend.domain.reservation.DTO.Response.ReservationDetailResponse;
-import com.Ticksy.backend.domain.reservation.DTO.Response.ReservationListResponse;
-import com.Ticksy.backend.domain.reservation.DTO.Response.ReservationPreviewResponse;
+import com.Ticksy.backend.domain.reservation.DTO.Response.*;
 import com.Ticksy.backend.domain.reservation.Entity.ReservationEntity;
 import com.Ticksy.backend.domain.reservation.Entity.ReservationSeatEntity;
+import com.Ticksy.backend.domain.reservation.enums.ReservationStatus;
 import com.Ticksy.backend.domain.reservation.Repository.ReservationRepository;
 import com.Ticksy.backend.domain.reservation.Repository.ReservationSeatRepository;
-import com.Ticksy.backend.domain.reservation.enums.ReservationStatus;
 import com.Ticksy.backend.domain.seat.Entity.SeatEntity;
 import com.Ticksy.backend.domain.seat.Repository.SeatRepository;
-import com.Ticksy.backend.domain.seat.Repository.SectionRepository;
 import com.Ticksy.backend.domain.seat.Service.SeatHoldService;
 import com.Ticksy.backend.domain.user.Entity.UserEntity;
 import com.Ticksy.backend.domain.user.Repository.UserRepository;
@@ -33,12 +30,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,12 +58,12 @@ public class ReservationService {
 
     // 예매 정보 확인
     public ReservationPreviewResponse getPreview(
-            Long scheduleId, List<Long> seatIds, Long userId) {
-
-        // 본인이 선점한 좌석인지 확인
+            Long scheduleId, List<Long> seatIds, Long userId
+    ) {
+        // 선점 여부 확인 (본인이 선점한 좌석인지)
         for (Long seatId : seatIds) {
             if (!seatHoldService.isHeldByUser(scheduleId, seatId, userId)) {
-                throw new CustomException(ErrorCode.SEAT_HOLD_EXPIRED);
+                throw new CustomException(ErrorCode.SEAT_NOT_HELD);
             }
         }
 
@@ -113,8 +112,8 @@ public class ReservationService {
     // 결제 요청
     @Transactional
     public PaymentReadyResponse requestPayment(
-            PaymentRequestDto request, Long userId) {
-
+            PaymentRequestDto request, Long userId
+    ) {
         // 선점 재확인
         for (Long seatId : request.getSeatIds()) {
             if (!seatHoldService.isHeldByUser(
@@ -128,13 +127,14 @@ public class ReservationService {
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_SCHEDULE));
 
-        List<SeatEntity> seats =
-                seatRepository.findBySeatIdIn(request.getSeatIds());
-
         // 금액 검증 (위변조 방지)
-        Integer calculatedPrice = sectionRepository
-                .findWithSeatsByScheduleId(request.getScheduleId())
-                .stream()
+        // DB에서 실제 가격을 계산해서 요청 금액과 비교
+        List<SectionEntity> sections =
+                sectionRepository.findWithSeatsByScheduleId(
+                        request.getScheduleId()
+                );
+
+        Integer calculatedPrice = sections.stream()
                 .flatMap(sec -> sec.getSeats().stream()
                         .filter(s -> request.getSeatIds()
                                 .contains(s.getSeatId()))
@@ -154,18 +154,21 @@ public class ReservationService {
                 .countByReservationCodePrefix(prefix);
         String orderId = prefix + String.format("%06d", count + 1);
 
-        // 사용자 조회
+        // 사용자 정보 조회
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_USER));
 
         // 주문명 생성
+        List<SeatEntity> seats =
+                seatRepository.findBySeatIdIn(request.getSeatIds());
         String orderName = schedule.getConcert().getTitle();
         if (seats.size() > 1) {
             orderName += " 외 " + (seats.size() - 1) + "건";
         }
 
-        // Redis에 orderId 정보 저장 (결제 승인 시 사용)
+        // Redis에 orderId 정보 저장 (TTL 10분)
+        // 결제 승인 시 scheduleId, seatIds를 꺼내서 사용
         orderRedisService.saveOrderInfo(
                 orderId,
                 request.getScheduleId(),
@@ -183,19 +186,21 @@ public class ReservationService {
                 .build();
     }
 
-    // 결제 승인 처리 (PAY-03)
+    // 결제 승인 처리
     @Transactional
     public PaymentConfirmResponse confirmPayment(
-            PaymentConfirmDto request, Long userId) {
-
-        // Redis에서 orderId → scheduleId, seatIds 조회
-        String orderInfo =
-                orderRedisService.getOrderInfo(request.getOrderId());
+            PaymentConfirmDto request, Long userId
+    ) {
+        // Redis에서 orderId에 해당하는 scheduleId, seatIds 조회
+        // 형식: "scheduleId:seatId1,seatId2,seatId3"
+        String orderInfo = orderRedisService.getOrderInfo(
+                request.getOrderId()
+        );
         String[] parts = orderInfo.split(":");
         Long scheduleId = Long.parseLong(parts[0]);
         List<Long> seatIds = Arrays.stream(parts[1].split(","))
                 .map(Long::parseLong)
-                .toList();
+                .collect(Collectors.toList());
 
         // 선점 만료 재확인
         for (Long seatId : seatIds) {
@@ -212,7 +217,7 @@ public class ReservationService {
                         request.getAmount()
                 );
 
-        // Toss 응답에서 승인 시각 파싱 (형식: "2024-08-15T12:34:56+09:00")
+        // Toss 응답에서 승인 시각 파싱
         String paidAtStr = (String) tossResponse.get("approvedAt");
         LocalDateTime paidAt = paidAtStr != null
                 ? LocalDateTime.parse(
@@ -221,7 +226,7 @@ public class ReservationService {
         )
                 : LocalDateTime.now();
 
-        // 사용자, 회차, 좌석 조회
+        // 사용자, 회차 조회
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_USER));
@@ -265,6 +270,8 @@ public class ReservationService {
                             .price(seat.getSection().getPrice())
                             .build();
             reservationSeatRepository.save(reservationSeat);
+
+            // DB 좌석 상태 변경
             seat.reserve();
         }
 
@@ -299,9 +306,9 @@ public class ReservationService {
     // 예매 취소 + 환불
     @Transactional
     public ReservationCancelResponse cancelReservation(
-            Long reservationId, Long userId) {
-
-        // 본인 예매 확인
+            Long reservationId, Long userId
+    ) {
+        // 예매 조회 (본인 예매인지 확인 포함)
         ReservationEntity reservation = reservationRepository
                 .findByReservationIdAndUser_UserId(reservationId, userId)
                 .orElseThrow(() ->
@@ -324,11 +331,13 @@ public class ReservationService {
             throw new CustomException(ErrorCode.CANCEL_PERIOD_EXPIRED);
         }
 
+        // 결제 정보 조회
         PaymentEntity payment = paymentRepository
                 .findByReservation_ReservationId(reservationId)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_RESERVATION));
 
+        // 환불 처리
         Integer refundAmount;
         String cancelReason;
 
@@ -340,6 +349,7 @@ public class ReservationService {
                     payment.getTossPaymentKey(), cancelReason, null
             );
             payment.cancel(LocalDateTime.now());
+
         } else {
             // 3일~7일 전 → 70% 환불
             refundAmount = (int) (payment.getAmount() * 0.7);
@@ -371,7 +381,7 @@ public class ReservationService {
                 .build();
     }
 
-    // 예매 내역 조회
+    // 예매 내역 조회 (MP-01)
     public List<ReservationListResponse> getMyReservations(Long userId) {
         return reservationRepository
                 .findByUser_UserIdOrderByCreatedAtDesc(userId)
@@ -382,8 +392,9 @@ public class ReservationService {
 
     // 예매 상세 조회
     public ReservationDetailResponse getReservationDetail(
-            Long reservationId, Long userId) {
-
+            Long reservationId, Long userId
+    ) {
+        // 본인 예매인지 확인
         ReservationEntity reservation = reservationRepository
                 .findByReservationIdAndUser_UserId(reservationId, userId)
                 .orElseThrow(() ->
