@@ -1,5 +1,7 @@
 package com.Ticksy.backend.domain.user.Service;
 
+import com.Ticksy.backend.domain.reservation.Repository.ReservationRepository;
+import com.Ticksy.backend.domain.reservation.enums.ReservationStatus;
 import com.Ticksy.backend.domain.user.DTO.Request.EmailVerifyRequest;
 import com.Ticksy.backend.domain.user.DTO.Request.LoginRequest;
 import com.Ticksy.backend.domain.user.DTO.Request.PasswordChangeRequest;
@@ -30,6 +32,7 @@ public class UserService {
     private final JwtProvider jwtProvider;                      // 유저 확인용 토큰(Access/Refresh Token)을 찍어내는 공장
     private final EmailService emailService;                    // 이메일 인증 영수증 관리
     private final RedisTemplate<String, String> redisTemplate;  // 레디스 초고속 금고 리모컨
+    private final ReservationRepository reservationRepository;
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh:token:"; // 레디스에 보관할 리프레시 토큰방 이름
     private static final long REFRESH_TTL_DAYS = 7;                      // 리프레시 토큰은 7일 동안만 유지
@@ -194,7 +197,7 @@ public class UserService {
         log.info("로그아웃 완료: userId={}", userId);
     }
 
-    // 비밀번호 변경 (MP-02)
+    // 비밀번호 변경
     @Transactional
     public void changePassword(Long userId, PasswordChangeRequest request) {
         // 유저 존재하는지 검사
@@ -225,11 +228,18 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         // 이미 탈퇴가 유저의 상택가 참이라면 이중 처리 탈퇴 막기
-        if(user.isDeleted()) {
+        if (user.isDeleted()) {
             throw new CustomException(ErrorCode.DELETED_USER);
         }
 
         // 확정된 예매 내역 확인은 ReservationService에서 처리 예정
+        boolean hasActiveReservation = reservationRepository.existsByUser_UserIdAndStatus(
+                userId, ReservationStatus.CONFIRMED);
+
+        if (hasActiveReservation) {
+            throw new CustomException(ErrorCode.HAS_ACTIVE_RESERVATION);
+        }
+
         // 여기서는 소프트 삭제만
         user.delete();
 
