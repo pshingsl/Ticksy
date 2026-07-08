@@ -6,11 +6,11 @@ import { ReservationPreview } from '../../types/reservation';
 
 const HOLD_TTL_SECONDS = 300;
 
-export default function ReservationPreivewPage() {
+export default function ReservationPreviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // SeatPage에서  navigate시 state로 전달
+  // SeatPage에서 navigate 시 state로 전달
   const { scheduleId, seatIds, concertId } = location.state || {};
 
   const [preview, setPreview] = useState<ReservationPreview | null>(null);
@@ -26,7 +26,7 @@ export default function ReservationPreivewPage() {
       return;
     }
     fetchPreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // 카운트다운 타이머
@@ -48,7 +48,6 @@ export default function ReservationPreivewPage() {
 
   const fetchPreview = async () => {
     setLoading(true);
-
     try {
       const data = await getReservationPreview(scheduleId, seatIds);
       setPreview(data);
@@ -63,8 +62,8 @@ export default function ReservationPreivewPage() {
         }
       }
     } catch (err: any) {
-      const code = err.response?.data.code;
-      if (code === 'SEAT_NOT_HOLD' || code === 'SEAT_HOLD_EXPIRED') {
+      const code = err.response?.data?.code;
+      if (code === 'SEAT_NOT_HELD' || code === 'SEAT_HOLD_EXPIRED') {
         setError('좌석 선점이 만료되었습니다. 좌석을 다시 선택해주세요.');
       } else {
         setError('예매 정보를 불러오지 못했습니다.');
@@ -78,20 +77,21 @@ export default function ReservationPreivewPage() {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
-  }
+  };
 
   const handlePayment = async () => {
     if (!preview) return;
     setPaying(true);
 
     try {
+      // 결제 요청 → orderId 생성 + Redis 저장
       const paymentReady = await requestPayment(
         scheduleId,
         seatIds,
         preview.totalPrice
       );
 
-      // Toss 결제 페이지로 이동(state 데이터 전달)
+      // Toss 결제 페이지로 이동 (state로 데이터 전달)
       navigate('/payment', {
         state: {
           paymentReady,
@@ -104,7 +104,7 @@ export default function ReservationPreivewPage() {
       if (code === 'SEAT_HOLD_EXPIRED') {
         alert('좌석 선점이 만료되었습니다. 좌석을 다시 선택해주세요.');
         navigate(-2);
-      } else if (code === 'PRICE_MATCH') {
+      } else if (code === 'PRICE_MISMATCH') {
         alert('결제 금액 오류가 발생했습니다.');
       } else {
         alert('결제 요청 중 오류가 발생했습니다.');
@@ -113,7 +113,7 @@ export default function ReservationPreivewPage() {
     }
   };
 
-if (loading) {
+  if (loading) {
     return (
       <div style={styles.page}>
         <Header />

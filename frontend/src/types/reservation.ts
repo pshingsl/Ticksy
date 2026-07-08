@@ -18,7 +18,6 @@ export interface ReservationPreview {
   holdExpiredAt: string;
 }
 
-
 export interface PaymentReady {
   orderId: string;
   orderName: string;
@@ -26,7 +25,6 @@ export interface PaymentReady {
   customerName: string;
   customerEmail: string;
 }
-
 
 export interface PaymentConfirmResult {
   reservationId: number;
@@ -42,8 +40,8 @@ export interface ReservationListItem {
   eventTime: string;
   venueName: string;
   totalPrice: number;
-  status: 'CONFIRMED' | 'CANCELED';
-  createAt: string;
+  status: 'CONFIRMED' | 'CANCELLED';
+  createdAt: string;
 }
 
 export interface ReservationDetail {
@@ -56,5 +54,5 @@ export interface ReservationDetail {
   seats: SeatPreviewItem[];
   totalPrice: number;
   status: string;
-  paidAt: string|null;
+  paidAt: string | null;
 }
