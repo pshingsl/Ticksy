@@ -1,13 +1,13 @@
-import api from "./axios";
+import api from './axios';
 import {
   ReservationPreview,
   PaymentReady,
   PaymentConfirmResult,
   ReservationListItem,
-  ReservationDetail
-} from '../types/reservation'
+  ReservationDetail,
+} from '../types/reservation';
 
-// 예매 정보 확인
+// 예매 정보 확인 
 export const getReservationPreview = async (
   scheduleId: number,
   seatIds: number[]
@@ -21,7 +21,7 @@ export const getReservationPreview = async (
   return response.data.data;
 };
 
-// 결제 요청
+// 결제 요청 
 export const requestPayment = async (
   scheduleId: number,
   seatIds: number[],
@@ -30,34 +30,33 @@ export const requestPayment = async (
   const response = await api.post('/payments/request', {
     scheduleId,
     seatIds,
-    totalPrice
+    totalPrice,
   });
   return response.data.data;
 };
 
-// 결제 승인
+// 결제 승인 
 export const confirmPayment = async (
-  paymenyKey: string,
+  paymentKey: string,
   orderId: string,
   amount: number
 ): Promise<PaymentConfirmResult> => {
   const response = await api.post('/payments/confirm', {
-    paymenyKey,
+    paymentKey,
     orderId,
-    amount
+    amount,
   });
   return response.data.data;
 };
 
-// 예매 내역 조회
+// 예매 내역 조회 
 export const getMyReservations = async (): Promise<ReservationListItem[]> => {
   const response = await api.get('/my/reservations');
   return response.data.data;
 };
 
-
-// 에매 상세 조회
-export const getReservaitonDetail = async (
+// 예매 상세 조회
+export const getReservationDetail = async (
   reservationId: number
 ): Promise<ReservationDetail> => {
   const response = await api.get(`/my/reservations/${reservationId}`);
