@@ -50,12 +50,11 @@ export const confirmPayment = async (
 };
 
 // 예매 내역 조회
-export const getMyReservation = async (
-  reservationId: number
-): Promise<ReservationListItem[]> => {
+export const getMyReservations = async (): Promise<ReservationListItem[]> => {
   const response = await api.get('/my/reservations');
   return response.data.data;
 };
+
 
 // 에매 상세 조회
 export const getReservaitonDetail = async (
