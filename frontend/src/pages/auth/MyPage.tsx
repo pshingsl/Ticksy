@@ -1,27 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { changePassword, withdraw, logout } from '../../api/auth';
+import { getMyReservations, cancelReservation } from '../../api/reservation';
 import { useAuthStore } from '../../store/authStore';
+import { ReservationListItem } from '../../types/reservation';
 
 export default function MyPage() {
   const navigate = useNavigate();
-  // Zustand 창고에서 로그아웃 처리 함수와 현재 로그인 유저 이름을 실시간 연동
   const { logout: storeLogout, userName } = useAuthStore();
 
-  // 비번 조작 폼 상태 관리(현재 비번, 새로운 비번, 새로운 비번 검사, 에러, 성공, 로딩)
+  // 비밀번호 변경
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
+
+  // 예매 내역
+  const [reservations, setReservations] = useState<ReservationListItem[]>([]);
+  const [reservationLoading, setReservationLoading] = useState(true);
+
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
+  // 예매 내역 조회
+  const fetchReservations = async () => {
+    setReservationLoading(true);
+    try {
+      const data = await getMyReservations();
+      setReservations(data);
+    } catch {
+      console.error('예매 내역 조회 실패');
+    } finally {
+      setReservationLoading(false);
+    }
+  };
 
   // 로그아웃
   const handleLogout = async () => {
     try {
-      await logout(); // 로그아웃 요청하면 백엔드 세션/레디스 토큰 파기 요청
+      await logout();
     } finally {
-      // 백엔드가 터지든 성공하든 상관없이 프론트엔드 장부(로컬스토리지)는 무조건 청소한다. (finally 구문 활용)
       storeLogout();
       navigate('/login');
     }
@@ -29,13 +52,10 @@ export default function MyPage() {
 
   // 비밀번호 변경
   const handleChangePassword = async () => {
-    // 1. 현재비번이랑 새로운 비번이 입력되지 않는다면 에러 호출
     if (!currentPassword || !newPassword) {
       setPwError('모든 항목을 입력해주세요.');
       return;
     }
-
-    // 2. 새로운 비번 입력 후 새로운 비번 같은지 검사
     if (newPassword !== newPasswordConfirm) {
       setPwError('새 비밀번호가 일치하지 않습니다.');
       return;
@@ -43,23 +63,17 @@ export default function MyPage() {
     const pwRegex =
       /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!pwRegex.test(newPassword)) {
-      setPwError(
-        '비밀번호는 8자 이상이며 특수문자를 포함해야 합니다.'
-      );
+      setPwError('비밀번호는 8자 이상이며 특수문자를 포함해야 합니다.');
       return;
     }
 
-    setLoading(true);
+    setPwLoading(true);
     setPwError('');
     setPwSuccess('');
 
     try {
-      // 백엔드로 구 패스워드와 신 패스워드를 묶어 전송
       await changePassword(currentPassword, newPassword);
-      setPwSuccess(
-        '비밀번호가 변경되었습니다. 다시 로그인해주세요.'
-      );
-      // 디바운스/타이머 효과: 유저가 성공 메시지를 읽을 시간을 2초간 준 뒤 가입 창고를 부수고 로그아웃 처리
+      setPwSuccess('비밀번호가 변경되었습니다. 다시 로그인해주세요.');
       setTimeout(() => {
         storeLogout();
         navigate('/login');
@@ -72,27 +86,46 @@ export default function MyPage() {
         setPwError('비밀번호 변경 중 오류가 발생했습니다.');
       }
     } finally {
-      setLoading(false);
+      setPwLoading(false);
+    }
+  };
+
+  // 예매 취소
+  const handleCancelReservation = async (reservationId: number) => {
+    const confirmed = window.confirm('예매를 취소하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      const result = await cancelReservation(reservationId);
+      alert(
+        `환불이 완료되었습니다.\n환불 금액: ${result.refundAmount.toLocaleString()}원`
+      );
+      fetchReservations();
+    } catch (err: any) {
+      const code = err.response?.data?.code;
+      if (code === 'CANCEL_PERIOD_EXPIRED') {
+        alert('취소 가능 기간이 지났습니다. (공연 3일 이내 취소 불가)');
+      } else if (code === 'ALREADY_CANCELLED') {
+        alert('이미 취소된 예매입니다.');
+      } else {
+        alert('취소 처리 중 오류가 발생했습니다.');
+      }
     }
   };
 
   // 회원 탈퇴
   const handleWithdraw = async () => {
-    // 브라우저의 기본 확인창(Confirm)을 띄워 유저의 고의성 의사를 한 번 더 심사
-    const confirmed = window.confirm(
-      '정말 탈퇴하시겠습니까?'
-    );
-    if (!confirmed) return; // '취소'를 누르면 즉시 함수를 자진 중단합니다.
+    const confirmed = window.confirm('정말 탈퇴하시겠습니까?');
+    if (!confirmed) return;
 
     setLoading(true);
-    try { 
-      await withdraw(); // 백엔드 DB 유저 Soft/Hard Delete 트리거 호출
+    try {
+      await withdraw();
       alert('탈퇴가 완료되었습니다.');
       storeLogout();
       navigate('/login');
     } catch (err: any) {
       const code = err.response?.data?.code;
-      // 무결성 예외 처리: 만약 백엔드에서 예매 정보 연관 관계가 묶여있어 에러를 뱉었다면 분기 안내
       if (code === 'HAS_ACTIVE_RESERVATION') {
         alert(
           '예매 내역이 있어 탈퇴가 불가능합니다.\n예매를 먼저 취소해주세요.'
@@ -107,17 +140,22 @@ export default function MyPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.inner}>
-        {/* 헤더 */}
-        <div style={styles.header}>
-          <div style={styles.logo}>
-            Tick<span style={styles.logoAccent}>sy</span>
-          </div>
+      {/* 헤더 */}
+      <div style={styles.header}>
+        <div style={styles.logo}>
+          Tick<span style={styles.logoAccent}>sy</span>
+        </div>
+        <div style={styles.headerRight}>
+          <button style={styles.homeBtn} onClick={() => navigate('/')}>
+            메인으로
+          </button>
           <button style={styles.logoutBtn} onClick={handleLogout}>
             로그아웃
           </button>
         </div>
+      </div>
 
+      <div style={styles.inner}>
         {/* 사용자 정보 */}
         <div style={styles.profileCard}>
           <div style={styles.avatar}>
@@ -127,6 +165,55 @@ export default function MyPage() {
             <div style={styles.userName}>{userName}</div>
             <div style={styles.userTag}>일반 회원</div>
           </div>
+        </div>
+
+        {/* 예매 내역 */}
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>예매 내역</h3>
+          {reservationLoading ? (
+            <div style={styles.emptyText}>로딩 중...</div>
+          ) : reservations.length === 0 ? (
+            <div style={styles.emptyText}>예매 내역이 없습니다.</div>
+          ) : (
+            reservations.map((r) => (
+              <div key={r.reservationId} style={resStyles.card}>
+                <div style={resStyles.top}>
+                  <span
+                    style={{
+                      ...resStyles.badge,
+                      backgroundColor:
+                        r.status === 'CONFIRMED' ? '#eaf3de' : '#fcebeb',
+                      color:
+                        r.status === 'CONFIRMED' ? '#3b7d22' : '#a32d2d',
+                    }}
+                  >
+                    {r.status === 'CONFIRMED' ? '예매확정' : '취소완료'}
+                  </span>
+                  <span style={resStyles.code}>{r.reservationCode}</span>
+                </div>
+                <div style={resStyles.concertTitle}>{r.concertTitle}</div>
+                <div style={resStyles.info}>
+                  {r.eventDate} {r.eventTime?.slice(0, 5)} |{' '}
+                  {r.venueName}
+                </div>
+                <div style={resStyles.bottom}>
+                  <span style={resStyles.price}>
+                    {r.totalPrice.toLocaleString()}원
+                  </span>
+                  {r.status === 'CONFIRMED' && (
+                    <button
+                      style={resStyles.cancelBtn}
+                      onClick={() =>
+                        handleCancelReservation(r.reservationId)
+                      }
+                    >
+                      취소하기
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* 비밀번호 변경 */}
@@ -159,9 +246,7 @@ export default function MyPage() {
               type="password"
               placeholder="새 비밀번호 재입력"
               value={newPasswordConfirm}
-              onChange={(e) =>
-                setNewPasswordConfirm(e.target.value)
-              }
+              onChange={(e) => setNewPasswordConfirm(e.target.value)}
             />
           </div>
 
@@ -171,12 +256,12 @@ export default function MyPage() {
           <button
             style={{
               ...styles.button,
-              opacity: loading ? 0.7 : 1,
+              opacity: pwLoading ? 0.7 : 1,
             }}
             onClick={handleChangePassword}
-            disabled={loading}
+            disabled={pwLoading}
           >
-            비밀번호 변경
+            {pwLoading ? '변경 중...' : '비밀번호 변경'}
           </button>
           <p style={styles.hint}>
             ※ 변경 후 보안을 위해 자동 로그아웃됩니다.
@@ -187,8 +272,8 @@ export default function MyPage() {
         <div style={styles.section}>
           <h3 style={styles.sectionTitle}>회원 탈퇴</h3>
           <p style={styles.hint}>
-            탈퇴 시 계정 복구가 불가능합니다.
-            확정된 예매 내역이 있으면 탈퇴할 수 없습니다.
+            탈퇴 시 계정 복구가 불가능합니다. 확정된 예매 내역이 있으면
+            탈퇴할 수 없습니다.
           </p>
           <button
             style={styles.withdrawBtn}
@@ -207,35 +292,51 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     minHeight: '100vh',
     backgroundColor: '#f5f5f0',
-    padding: '0 16px',
-  },
-  inner: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    paddingBottom: '40px',
   },
   header: {
+    height: '60px',
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '20px 0',
+    justifyContent: 'space-between',
+    padding: '0 40px',
+    backgroundColor: '#fff',
     borderBottom: '1px solid #e0e0e0',
-    marginBottom: '24px',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
   },
   logo: {
-    fontSize: '22px',
+    fontSize: '20px',
     fontWeight: '800',
     color: '#1a1a1a',
   },
   logoAccent: { color: '#e8c547' },
-  logoutBtn: {
-    padding: '8px 16px',
-    backgroundColor: '#1a1a1a',
-    color: '#fff',
-    border: 'none',
+  headerRight: {
+    display: 'flex',
+    gap: '8px',
+  },
+  homeBtn: {
+    padding: '7px 16px',
     borderRadius: '6px',
     fontSize: '13px',
+    border: '1px solid #ddd',
+    backgroundColor: '#fff',
+    color: '#333',
     cursor: 'pointer',
+  },
+  logoutBtn: {
+    padding: '7px 16px',
+    borderRadius: '6px',
+    fontSize: '13px',
+    border: '1px solid #1a1a1a',
+    backgroundColor: '#1a1a1a',
+    color: '#fff',
+    cursor: 'pointer',
+  },
+  inner: {
+    maxWidth: '640px',
+    margin: '0 auto',
+    padding: '32px 24px 60px',
   },
   profileCard: {
     backgroundColor: '#fff',
@@ -281,6 +382,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: '16px',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#aaa',
+    fontSize: '13px',
+    padding: '20px 0',
   },
   formGroup: { marginBottom: '14px' },
   label: {
@@ -335,5 +442,62 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#3b7d22',
     fontSize: '13px',
     marginBottom: '8px',
+  },
+};
+
+const resStyles: Record<string, React.CSSProperties> = {
+  card: {
+    border: '1px solid #e0e0e0',
+    borderRadius: '8px',
+    padding: '16px',
+    marginBottom: '12px',
+    backgroundColor: '#fafaf8',
+  },
+  top: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px',
+  },
+  badge: {
+    padding: '2px 8px',
+    borderRadius: '4px',
+    fontSize: '11px',
+    fontWeight: '600',
+  },
+  code: {
+    fontSize: '12px',
+    color: '#888',
+    fontFamily: 'monospace',
+  },
+  concertTitle: {
+    fontWeight: '600',
+    fontSize: '15px',
+    marginBottom: '4px',
+    color: '#1a1a1a',
+  },
+  info: {
+    fontSize: '13px',
+    color: '#666',
+    marginBottom: '12px',
+  },
+  bottom: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  price: {
+    fontWeight: '700',
+    fontSize: '15px',
+    color: '#1a1a1a',
+  },
+  cancelBtn: {
+    padding: '6px 14px',
+    border: '1px solid #e24b4a',
+    borderRadius: '6px',
+    backgroundColor: '#fff',
+    color: '#e24b4a',
+    fontSize: '13px',
+    cursor: 'pointer',
   },
 };
