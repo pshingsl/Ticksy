@@ -1,5 +1,5 @@
 // axios는 브라우저에서 백엔드 API 요청을 쉽게 보내기 위한 라이브러리
-import axios from "axios";
+import axios from 'axios';
 
 /*
  * axios 공통 인스턴스 생성
