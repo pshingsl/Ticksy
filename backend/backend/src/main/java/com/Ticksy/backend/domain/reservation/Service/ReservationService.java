@@ -30,13 +30,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -152,7 +152,12 @@ public class ReservationService {
         String prefix = "ORDER-" + today + "-";
         Long count = reservationRepository
                 .countByReservationCodePrefix(prefix);
-        String orderId = prefix + String.format("%06d", count + 1);
+
+        String orderId = "ORDER-" + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 12)
+                .toUpperCase();
 
         // 사용자 정보 조회
         UserEntity user = userRepository.findById(userId)
