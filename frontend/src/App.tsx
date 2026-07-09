@@ -11,7 +11,6 @@ import PaymentPage from './pages/payment/PaymentPage';
 import PaymentCompletePage from './pages/payment/PaymentCompletePage';
 import PaymentFailPage from './pages/payment/PaymentFailPage';
 
-
 function App() {
   return (
     <BrowserRouter>
@@ -34,6 +33,7 @@ function App() {
           <Route path="/reservations/preview" element={<ReservationPreviewPage />} />
           <Route path="/payment" element={<PaymentPage />} />
         </Route>
+
         {/* 기본경로 */}
         <Route path="/" element={<LoginPage />} />
       </Routes>
