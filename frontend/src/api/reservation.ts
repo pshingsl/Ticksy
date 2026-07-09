@@ -37,12 +37,12 @@ export const requestPayment = async (
 
 // 결제 승인
 export const confirmPayment = async (
-  paymenyKey: string,
+  paymentKey: string,
   orderId: string,
   amount: number
 ): Promise<PaymentConfirmResult> => {
   const response = await api.post('/payments/confirm', {
-    paymenyKey,
+    paymentKey,
     orderId,
     amount
   });
