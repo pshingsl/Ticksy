@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { confirmPayment } from '../../api/reservation';
@@ -12,7 +12,17 @@ export default function PaymentCompletePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // 중복 결제 승인 요청 방지
+  const calledRef = useRef(false);
+
   useEffect(() => {
+    // React.StrictMode에서 useEffect가 2번 실행되는 것 방지
+    if (calledRef.current) {
+      return;
+    }
+
+    calledRef.current = true;
+
     const paymentKey = searchParams.get('paymentKey');
     const orderId = searchParams.get('orderId');
     const amount = searchParams.get('amount');
@@ -33,11 +43,13 @@ export default function PaymentCompletePage() {
     amount: number
   ) => {
     setLoading(true);
+
     try {
       const data = await confirmPayment(paymentKey, orderId, amount);
       setResult(data);
     } catch (err: any) {
       const code = err.response?.data?.code;
+
       if (code === 'SEAT_HOLD_EXPIRED') {
         setError('좌석 선점이 만료되었습니다. 처음부터 다시 시도해주세요.');
       } else if (code === 'PAYMENT_CONFIRM_FAILED') {
@@ -79,14 +91,14 @@ export default function PaymentCompletePage() {
       <Header />
       <div style={styles.container}>
         <div style={styles.card}>
-          {/* 완료 아이콘 */}
           <div style={styles.successIcon}>✓</div>
+
           <div style={styles.title}>예매가 완료되었습니다!</div>
+
           <div style={styles.subtitle}>
             아래 예매 정보를 확인해주세요.
           </div>
 
-          {/* 예매 정보 */}
           <div style={styles.infoBox}>
             <div style={styles.infoRow}>
               <span style={styles.label}>예매번호</span>
@@ -94,6 +106,7 @@ export default function PaymentCompletePage() {
                 {result?.reservationCode}
               </span>
             </div>
+
             <div style={styles.infoRow}>
               <span style={styles.label}>결제일시</span>
               <span style={styles.value}>
@@ -104,7 +117,6 @@ export default function PaymentCompletePage() {
             </div>
           </div>
 
-          {/* 버튼 */}
           <div style={styles.btnRow}>
             <button
               style={styles.btnSecondary}
@@ -112,6 +124,7 @@ export default function PaymentCompletePage() {
             >
               메인으로
             </button>
+
             <button
               style={styles.btnPrimary}
               onClick={() => navigate('/mypage')}
@@ -126,14 +139,24 @@ export default function PaymentCompletePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { minHeight: '100vh', backgroundColor: '#f5f5f0' },
-  container: { maxWidth: '480px', margin: '0 auto', padding: '48px 24px' },
+  page: {
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f0',
+  },
+
+  container: {
+    maxWidth: '480px',
+    margin: '0 auto',
+    padding: '48px 24px',
+  },
+
   center: {
     textAlign: 'center',
     padding: '80px 24px',
     color: '#888',
     fontSize: '14px',
   },
+
   card: {
     backgroundColor: '#fff',
     borderRadius: '12px',
@@ -141,6 +164,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center',
     boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
   },
+
   successIcon: {
     width: '64px',
     height: '64px',
@@ -153,6 +177,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     margin: '0 auto 16px',
   },
+
   errorIcon: {
     width: '64px',
     height: '64px',
@@ -165,17 +190,20 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     margin: '0 auto 16px',
   },
+
   title: {
     fontSize: '20px',
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: '8px',
   },
+
   subtitle: {
     fontSize: '13px',
     color: '#888',
     marginBottom: '24px',
   },
+
   infoBox: {
     backgroundColor: '#f5f5f0',
     borderRadius: '8px',
@@ -183,6 +211,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '24px',
     textAlign: 'left',
   },
+
   infoRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -190,15 +219,27 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '8px',
     fontSize: '13px',
   },
-  label: { color: '#888' },
+
+  label: {
+    color: '#888',
+  },
+
   reservationCode: {
     fontWeight: '700',
     fontSize: '14px',
     color: '#1a1a1a',
     fontFamily: 'monospace',
   },
-  value: { color: '#1a1a1a' },
-  btnRow: { display: 'flex', gap: '8px' },
+
+  value: {
+    color: '#1a1a1a',
+  },
+
+  btnRow: {
+    display: 'flex',
+    gap: '8px',
+  },
+
   btn: {
     padding: '10px 20px',
     border: '1px solid #ddd',
@@ -207,6 +248,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     fontSize: '14px',
   },
+
   btnSecondary: {
     flex: 1,
     padding: '12px',
@@ -216,6 +258,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     fontSize: '14px',
   },
+
   btnPrimary: {
     flex: 1,
     padding: '12px',
