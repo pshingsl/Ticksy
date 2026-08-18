@@ -49,6 +49,10 @@ export default function ConcertListPage() {
   };
 
   const formatPrice = (min: number, max: number) => {
+    // formatPrice에서 null 또는 0이면 가격 미정 표시
+    if (min == null || max == null || (min === 0 && max === 0)) {
+      return '가격 미정';
+    }
     if (min === max) return `${min.toLocaleString()}원`;
     return `${min.toLocaleString()} ~ ${max.toLocaleString()}원`;
   };
