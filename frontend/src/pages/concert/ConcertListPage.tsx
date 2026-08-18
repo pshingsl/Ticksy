@@ -158,33 +158,57 @@ export default function ConcertListPage() {
           </div>
         )}
 
+        {/* 수정된 페이지네이션 영역 */}
         {totalPages > 1 && (
           <div style={styles.pagination}>
+            {/* 이전 버튼 */}
             <button
-              style={styles.pageBtn}
+              style={{
+                ...styles.pageBtn,
+                opacity: page === 0 ? 0.3 : 1,
+                cursor: page === 0 ? 'not-allowed' : 'pointer',
+              }}
               disabled={page === 0}
               onClick={() => setPage((p) => p - 1)}
             >
-              ◀
+              &lt;
             </button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                style={{
-                  ...styles.pageBtn,
-                  ...(i === page ? styles.pageBtnActive : {}),
-                }}
-                onClick={() => setPage(i)}
-              >
-                {i + 1}
-              </button>
-            ))}
+
+            {/* 페이지 번호 (최대 10개씩 표시) */}
+            {(() => {
+              const groupSize = 10;
+              const currentGroup = Math.floor(page / groupSize);
+              const startPage = currentGroup * groupSize;
+              const endPage = Math.min(startPage + groupSize, totalPages);
+
+              return Array.from(
+                { length: endPage - startPage },
+                (_, i) => startPage + i
+              ).map((i) => (
+                <button
+                  key={i}
+                  style={{
+                    ...styles.pageBtn,
+                    ...(i === page ? styles.pageBtnActive : {}),
+                  }}
+                  onClick={() => setPage(i)}
+                >
+                  {i + 1}
+                </button>
+              ));
+            })()}
+
+            {/* 다음 버튼 */}
             <button
-              style={styles.pageBtn}
+              style={{
+                ...styles.pageBtn,
+                opacity: page === totalPages - 1 ? 0.3 : 1,
+                cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer',
+              }}
               disabled={page === totalPages - 1}
               onClick={() => setPage((p) => p + 1)}
             >
-              ▶
+              &gt;
             </button>
           </div>
         )}
