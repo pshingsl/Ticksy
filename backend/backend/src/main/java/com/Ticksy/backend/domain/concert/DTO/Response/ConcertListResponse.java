@@ -3,6 +3,7 @@ package com.Ticksy.backend.domain.concert.DTO.Response;
 import com.Ticksy.backend.domain.concert.Entity.ConcertEntity;
 import lombok.Builder;
 import lombok.Getter;
+
 import java.time.LocalDate;
 
 @Getter
@@ -31,8 +32,8 @@ public class ConcertListResponse {
                 .posterUrl(concert.getPosterUrl())
                 .venueName(concert.getVenue().getName())
                 .eventDate(eventDate)
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
+                .minPrice(minPrice != null ? minPrice : 0)
+                .maxPrice(maxPrice != null ? maxPrice : 0)
                 .hasAvailableSeat(hasAvailableSeat)
                 .build();
     }
