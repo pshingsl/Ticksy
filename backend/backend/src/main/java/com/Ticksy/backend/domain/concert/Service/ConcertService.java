@@ -33,35 +33,44 @@ public class ConcertService {
     public ConcertListPageResponse getConcertList(
             LocalDate date, String region, Pageable pageable
     ) {
-        Page<ConcertEntity> concertPage = concertRepository.findAllWithFilters(date, region, pageable);
+        Page<ConcertEntity> concertPage =
+                concertRepository.findAllWithFilters(date, region, pageable);
 
         Page<ConcertListResponse> responsePage = concertPage.map(concert -> {
 
-            // 가장 빠른 회차
-            LocalDate earliestDate = concert.getSchedules().stream()
+            // schedules가 없으면 기본값 반환
+            List<EventScheduleEntity> schedules = concert.getSchedules();
+
+            if (schedules.isEmpty()) {
+                return ConcertListResponse.of(
+                        concert, null, 0, 0, false
+                );
+            }
+
+            LocalDate earliestDate = schedules.stream()
                     .map(EventScheduleEntity::getEventDate)
                     .min(Comparator.naturalOrder())
                     .orElse(null);
 
-            // 가격 범위(구역 가격 기준)
-            List<Integer> prices = concert.getSchedules().stream()
+            List<Integer> prices = schedules.stream()
                     .flatMap(s -> s.getSections().stream())
                     .map(SectionEntity::getPrice)
                     .toList();
 
-            Integer minPrice = prices.stream()
-                    .min(Comparator.naturalOrder()).orElse(null);
+            Integer minPrice = prices.isEmpty() ? 0 :
+                    prices.stream().min(Comparator.naturalOrder()).orElse(0);
+            Integer maxPrice = prices.isEmpty() ? 0 :
+                    prices.stream().max(Comparator.naturalOrder()).orElse(0);
 
-            Integer maxPrice = prices.stream()
-                    .max(Comparator.naturalOrder()).orElse(0);
-
-            // 잔여 좌석 여부 (회차 중 하나라도 AVAILABLE 좌석 존재)
-            boolean hasAvailableSeat = concert.getSchedules().stream()
+            boolean hasAvailableSeat = schedules.stream()
                     .flatMap(s -> s.getSections().stream())
-                    .flatMap((sec -> sec.getSeats().stream()))
-                    .anyMatch(seat -> seat.getStatus() == SeatStatus.AVAILABLE);
+                    .flatMap(sec -> sec.getSeats().stream())
+                    .anyMatch(seat ->
+                            seat.getStatus() == SeatStatus.AVAILABLE);
 
-            return ConcertListResponse.of(concert, earliestDate, minPrice, maxPrice, hasAvailableSeat);
+            return ConcertListResponse.of(
+                    concert, earliestDate, minPrice, maxPrice, hasAvailableSeat
+            );
         });
 
         return ConcertListPageResponse.of(responsePage);
