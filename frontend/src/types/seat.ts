@@ -16,10 +16,18 @@ export interface SectionWithSeats {
   seats: SeatItem[];
 }
 
+export interface SectionTab {
+  sectionId: number;
+  name: string;
+  grade: SeatGrade;
+  price: number;
+}
+
 export interface SeatLayout {
   scheduleId: number;
   bookingOpenAt: string;
   sections: SectionWithSeats[];
+  allSections: SectionTab[];
 }
 
 export interface SeatHoldResponse {
