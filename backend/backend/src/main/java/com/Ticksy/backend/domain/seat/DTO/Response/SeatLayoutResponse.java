@@ -12,4 +12,5 @@ public class SeatLayoutResponse {
     private Long scheduleId;
     private LocalDateTime bookingOpenAt;
     private List<SectionWithSeatsResponse> sections;
+    private List<SectionTabResponse> allSections; // 탭용 추가
 }
