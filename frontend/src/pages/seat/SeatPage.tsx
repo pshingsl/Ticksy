@@ -5,6 +5,7 @@ import {
   SeatLayout,
   SeatItem,
   SectionWithSeats,
+  SectionTab
 } from '../../types/seat';
 import Header from '../../components/Header';
 
@@ -28,6 +29,12 @@ export default function SeatPage() {
   // 선점 타이머
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isHeld, setIsHeld] = useState(false);
+
+
+  // 상태 추가 8월19일 35~37
+  const [selectedSectionId, setSelectedSectionId] =
+    useState<number | null>(null);
+  const [allSections, setAllSections] = useState<SectionTab[]>([]);
 
   // concertId는 URL에서 가져와야 하는데
   // 현재 라우팅이 /seats/:scheduleId 라 concertId가 없음
@@ -79,32 +86,59 @@ export default function SeatPage() {
   useEffect(() => {
     return () => {
       if (isHeld && selectedSeatIds.length > 0 && scheduleId) {
-        cancelHold(Number(scheduleId), selectedSeatIds).catch(() => {});
+        cancelHold(Number(scheduleId), selectedSeatIds).catch(() => { });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 8월19일 96~116
   const fetchLayout = async () => {
     if (!concertId || !scheduleId) return;
     setLoading(true);
     setError('');
     try {
+      // 처음엔 sectionId 없이 호출 → allSections 탭 목록 받기
       const data = await getSeatLayout(concertId, Number(scheduleId));
-      setLayout(data);
-      if (data.sections.length > 0) {
-        setSelectedSection(data.sections[0]);
+      setAllSections(data.allSections);
+
+      // 첫 번째 구역 자동 선택
+      if (data.allSections.length > 0 && !selectedSectionId) {
+        const firstSectionId = data.allSections[0].sectionId;
+        setSelectedSectionId(firstSectionId);
+        await fetchSectionSeats(firstSectionId);
       }
     } catch (err: any) {
-      const code = err.response?.data?.code;
-      if (code === 'BOOKING_NOT_OPEN_YET') {
-        setError('아직 예매 오픈 전입니다.');
-      } else {
-        setError('좌석 정보를 불러오지 못했습니다.');
-      }
+      setError('좌석 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // 구역별 좌석 조회 8월19일 119~134
+  const fetchSectionSeats = async (sectionId: number) => {
+    setLoading(true);
+    try {
+      const data = await getSeatLayout(
+        concertId!, Number(scheduleId), sectionId
+      );
+      if (data.sections.length > 0) {
+        setSelectedSection(data.sections[0]);
+      }
+      setLayout(data);
+    } catch {
+      setError('좌석 정보를 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 탭 클릭 핸들러 수정 8월19일 137~142 추가
+  const handleTabClick = async (sectionId: number) => {
+    if (isHeld) return;
+    setSelectedSectionId(sectionId);
+    setSelectedSeatIds([]);
+    await fetchSectionSeats(sectionId);
   };
 
   // 좌석 클릭
@@ -250,16 +284,16 @@ export default function SeatPage() {
 
             {/* 구역 탭 */}
             <div style={styles.tabs}>
-              {layout?.sections.map((sec) => (
+              {allSections.map((sec) => (
                 <button
                   key={sec.sectionId}
                   style={{
                     ...styles.tab,
-                    ...(selectedSection?.sectionId === sec.sectionId
+                    ...(selectedSectionId === sec.sectionId
                       ? styles.tabActive
                       : {}),
                   }}
-                  onClick={() => setSelectedSection(sec)}
+                  onClick={() => handleTabClick(sec.sectionId)}
                 >
                   {sec.name} ({sec.price.toLocaleString()}원)
                 </button>
@@ -296,9 +330,11 @@ export default function SeatPage() {
                 <div style={styles.seatRow}>
                   <div style={styles.rowLabel} />
                   {Array.from(
-                    { length: selectedSection.seats.reduce(
-                      (max, s) => Math.max(max, s.colNum), 0
-                    )},
+                    {
+                      length: selectedSection.seats.reduce(
+                        (max, s) => Math.max(max, s.colNum), 0
+                      )
+                    },
                     (_, i) => (
                       <div key={i} style={styles.colLabel}>
                         {i + 1}
@@ -309,9 +345,11 @@ export default function SeatPage() {
 
                 {/* 행별 좌석 */}
                 {Array.from(
-                  { length: selectedSection.seats.reduce(
-                    (max, s) => Math.max(max, s.rowNum), 0
-                  )},
+                  {
+                    length: selectedSection.seats.reduce(
+                      (max, s) => Math.max(max, s.rowNum), 0
+                    )
+                  },
                   (_, rowIdx) => {
                     const rowNum = rowIdx + 1;
                     const rowSeats = selectedSection.seats
@@ -326,10 +364,10 @@ export default function SeatPage() {
                           const seatStyle = isSelected
                             ? styles.seatSelected
                             : seat.status === 'RESERVED'
-                            ? styles.seatReserved
-                            : seat.status === 'HOLDING'
-                            ? styles.seatHolding
-                            : styles.seatAvailable;
+                              ? styles.seatReserved
+                              : seat.status === 'HOLDING'
+                                ? styles.seatHolding
+                                : styles.seatAvailable;
 
                           return (
                             <div
