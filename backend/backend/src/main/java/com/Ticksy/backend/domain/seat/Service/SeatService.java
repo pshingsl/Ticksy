@@ -4,10 +4,7 @@ import com.Ticksy.backend.domain.concert.Entity.EventScheduleEntity;
 import com.Ticksy.backend.domain.concert.Entity.SectionEntity;
 import com.Ticksy.backend.domain.concert.Repository.EventScheduleRepository;
 import com.Ticksy.backend.domain.concert.Repository.SectionRepository;
-import com.Ticksy.backend.domain.seat.DTO.Response.SeatHoldResponse;
-import com.Ticksy.backend.domain.seat.DTO.Response.SeatItemResponse;
-import com.Ticksy.backend.domain.seat.DTO.Response.SeatLayoutResponse;
-import com.Ticksy.backend.domain.seat.DTO.Response.SectionWithSeatsResponse;
+import com.Ticksy.backend.domain.seat.DTO.Response.*;
 import com.Ticksy.backend.domain.seat.Entity.SeatEntity;
 import com.Ticksy.backend.domain.seat.Repository.SeatRepository;
 import com.Ticksy.backend.domain.seat.enums.SeatStatus;
@@ -17,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,31 +31,45 @@ public class SeatService {
     private static final int MAX_SEAT_COUNT = 4;
 
     // 좌석 배치도 조회
-    public SeatLayoutResponse getSeatLayout(Long concertId, Long scheduleId) {
-
-        EventScheduleEntity schedule = eventScheduleRepository.
-                findByScheduleIdAndConcert_ConcertId(scheduleId, concertId)
+    public SeatLayoutResponse getSeatLayout(
+            Long concertId, Long scheduleId, Long sectionId
+    ) {
+        EventScheduleEntity schedule = eventScheduleRepository
+                .findByScheduleIdAndConcert_ConcertId(scheduleId, concertId)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_SCHEDULE));
 
-        // 예매 오픈 여부 확인
         if (!schedule.isBookingOpen()) {
             throw new CustomException(ErrorCode.BOOKING_NOT_OPEN_YET);
         }
 
-        // schedule.getSections() 대신 fetch join으로 직접 조회
-        List<SectionEntity> sections =
-                sectionRepository.findWithSeatsByScheduleId(scheduleId);
+        List<SectionEntity> sections;
 
-        List<SectionWithSeatsResponse> sectionResponses =
-                schedule.getSections().stream()
-                        .map(section -> buildSectionResponse(scheduleId, section))
-                        .toList();
+        if (sectionId != null) {
+            // 방식1: 특정 구역만 조회
+            sections = sectionRepository
+                    .findWithSeatsBySectionId(scheduleId, sectionId);
+        } else {
+            // 기존: 전체 구역 조회 (하위 호환)
+            sections = sectionRepository
+                    .findWithSeatsByScheduleId(scheduleId);
+        }
+
+        List<SectionWithSeatsResponse> sectionResponses = sections.stream()
+                .map(section -> buildSectionResponse(scheduleId, section))
+                .toList();
+
+        // 전체 구역 목록 (탭 표시용 - 좌석 없이 구역 정보만)
+        List<SectionEntity> allSections =
+                sectionRepository.findBySchedule_ScheduleId(scheduleId);
 
         return SeatLayoutResponse.builder()
                 .scheduleId(scheduleId)
                 .bookingOpenAt(schedule.getBookingOpenAt())
                 .sections(sectionResponses)
+                .allSections(allSections.stream()
+                        .map(s -> SectionTabResponse.of(s))
+                        .toList())
                 .build();
     }
 
