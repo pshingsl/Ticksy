@@ -26,11 +26,12 @@ public class SeatController {
     @GetMapping("/concerts/{concertId}/schedules/{scheduleId}/seats")
     public ResponseEntity<ApiResponse<SeatLayoutResponse>> getSeatLayout (
             @PathVariable Long concertId,
-            @PathVariable Long scheduleId
+            @PathVariable Long scheduleId,
+            @RequestParam(required = false) Long sectionId
     ) {
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        seatService.getSeatLayout(concertId, scheduleId)
+                        seatService.getSeatLayout(concertId, scheduleId, sectionId)
                 )
         );
     }
