@@ -17,4 +17,16 @@ public interface SectionRepository
     List<SectionEntity> findWithSeatsByScheduleId(
             @Param("scheduleId") Long scheduleId
     );
+
+    @Query("SELECT s FROM SectionEntity s " +
+            "JOIN FETCH s.seats " +
+            "WHERE s.schedule.scheduleId = :scheduleId " +
+            "AND s.sectionId = :sectionId")
+    List<SectionEntity> findWithSeatsBySectionId(
+            @Param("scheduleId") Long scheduleId,
+            @Param("sectionId") Long sectionId
+    );
+
+    // 구역 목록만 조회(좌석 없이)
+    List<SectionEntity> findBySchedule_ScheduleId(Long scheduleId);
 }
