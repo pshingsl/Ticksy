@@ -4,10 +4,16 @@ import { SeatLayout, SeatHoldResponse } from "../types/seat";
 // 좌석 배치도 조회
 export const getSeatLayout = async (
   concertId: number,
-  scheduleId: number
+  scheduleId: number,
+  sectionId?: number
 ): Promise<SeatLayout> => {
+  const params: any = {};
+  if (sectionId !== undefined) {
+    params.sectionId = sectionId;
+  }
   const response = await api.get(
-    `/concerts/${concertId}/schedules/${scheduleId}/seats`
+    `/concerts/${concertId}/schedules/${scheduleId}/seats`,
+    { params }
   );
 
   return response.data.data;
