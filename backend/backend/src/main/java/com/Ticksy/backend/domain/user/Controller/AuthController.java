@@ -39,21 +39,21 @@ public class AuthController {
     }
 
     // 이메일 인증번호 확인
-    @Operation(summary = "회원가입", description = "이메일 인증 완료 후 회원가입을 진행합니다.")
+    @Operation(summary = "이메일 인증번호 확인", description = "발송된 인증번호를 확인합니다. 성공 시 인증 완료 상태가 30분간 유지됩니다.")
     @PostMapping("/email/verify")
     public ResponseEntity<ApiResponse<EmailVerifyResponse>> verifyEmail(@RequestBody @Valid EmailVerifyRequest request) {
         return ResponseEntity.ok(ApiResponse.success(userService.verifyEmail(request)));
     }
 
     // 회원가입
-    @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인하고 Access Token을 발급받습니다.")
+    @Operation(summary = "회원가입", description = "이메일 인증 완료 후 회원가입을 진행합니다.")
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignupResponse>> signup(@RequestBody @Valid SignupRequest request) {
         return ResponseEntity.ok(ApiResponse.success(userService.signup(request)));
     }
 
     // 로그인
-    @Operation(summary = "회원가입", description = "이메일 인증 완료 후 회원가입을 진행합니다.")
+    @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인하고 Access Token을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(ApiResponse.success(userService.login(request)));
