@@ -80,6 +80,8 @@ public class SecurityConfig {
                                 "/concerts/search",
                                 "/concets/{concertId:[0-9]+}",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
                                 "/api-docs/**"
                         ).permitAll() // 위의 주소(64~68)들은 로그인 없이 접근 허용(permitAll()) 시킴
 
