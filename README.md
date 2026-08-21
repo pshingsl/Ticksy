@@ -3,9 +3,10 @@
 콘서트 티켓 플랫폼
 
 ## 🎯 프로젝트 소개
-- React, Spring Boot 기반 개인 사이드 프로젝트 입니다.
-- 개발 배경
-- 해결하고자 한 문제
+
+### 서비스 설명
+Ticksy는 트래픽이 집중되는 콘서트/공연 환경에서 **실시간 좌석 선점**과 **안정적인 결제 프로세스**를 제공하는 티켓 예매 플랫폼입니다.
+사용자는 실시간 좌석 배치도를 확인하여 원하는 좌석을 5분간 임시 선점할 수 있으며, Toss Payments 연동을 통해 결제 및 예매 확정까지 단절 없는 흐름으로 진행됩니다.
 
 ## 🔥 핵심 기술적 도전
 ### 1. Redis 분산 락을 이용한 좌석 선점 동시성 제어
@@ -13,33 +14,19 @@
 
 ## 🛠 Tech Stack
 ### Backend
-<img src="https://img.shields.io/badge/Java 21-007396?style=for-the-badge&logo=openjdk&logoColor=white">
-<img src="https://img.shields.io/badge/Spring Boot 4.0.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<img src="https://img.shields.io/badge/Spring Security 7.0.x-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
-<img src="https://img.shields.io/badge/Spring Data JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white">
-<img src="https://img.shields.io/badge/Spring Data Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
-<img src="https://img.shields.io/badge/Spring Boot Actuator-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<img src="https://img.shields.io/badge/JWT 0.12.5-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white">
-<img src="https://img.shields.io/badge/Redisson 3.43.0-DC382D?style=for-the-badge&logo=redis&logoColor=white">
-<img src="https://img.shields.io/badge/Swagger (SpringDoc 3.0.3)-85EA2D?style=for-the-badge&logo=swagger&logoColor=black">
+<img src="https://img.shields.io/badge/Java 21-007396?style=for-the-badge&logo=openjdk&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot 4.0.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"><img src="https://img.shields.io/badge/Spring Security 7.0.x-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot Actuator-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"><img src="https://img.shields.io/badge/JWT 0.12.5-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"> <img src="https://img.shields.io/badge/Redisson 3.43.0-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/Swagger (SpringDoc 3.0.3)-85EA2D?style=for-the-badge&logo=swagger&logoColor=black">
 
 ### Frontend
-<img src="https://img.shields.io/badge/React 19.x-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
-<img src="https://img.shields.io/badge/TypeScript 5.x-007ACC?style=for-the-badge&logo=typescript&logoColor=white">
-<img src="https://img.shields.io/badge/React Router 7.x-CA4245?style=for-the-badge&logo=react-router&logoColor=white">
-<img src="https://img.shields.io/badge/Axios 1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white">
-<img src="https://img.shields.io/badge/Zustand 5.x-000000?style=for-the-badge&logo=Zustand&logoColor=white">
+<img src="https://img.shields.io/badge/React 19.x-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"> <img src="https://img.shields.io/badge/TypeScript 5.x-007ACC?style=for-the-badge&logo=typescript&logoColor=white"> <img src="https://img.shields.io/badge/React Router 7.x-CA4245?style=for-the-badge&logo=react-router&logoColor=white"> <img src="https://img.shields.io/badge/Axios 1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white"> <img src="https://img.shields.io/badge/Zustand 5.x-000000?style=for-the-badge&logo=Zustand&logoColor=white">
 
 ### Database
-<img src="https://img.shields.io/badge/MySQL 8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
-<img src="https://img.shields.io/badge/Redis 7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white">
+<img src="https://img.shields.io/badge/MySQL 8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> <img src="https://img.shields.io/badge/Redis 7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white">
 
 ### Infra
 <img src="https://img.shields.io/badge/Apache JMeter 5.6.x-D22128?style=for-the-badge&logo=apachejmeter&logoColor=white">
 
 ### Test
-<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
-<img src="https://img.shields.io/badge/Docker Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"> <img src="https://img.shields.io/badge/Docker Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 
 ## 🏗 아키텍처 및 ERD
 
