@@ -45,7 +45,8 @@
 
 <summary>아키텍처</summary>
 
-- 흐름 설명 (이미지 없으면 텍스트)
+![img_2.png](img_2.png)
+
 </details>
 
 <br>
