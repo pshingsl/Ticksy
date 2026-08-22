@@ -59,6 +59,7 @@ Redis 분산 락 기반 좌석 선점과 실결제 연동까지 직접 구현했
 
 <details>
   <summary>주요 기능</summary>
+
 ### 회원
 - 이메일 인증 후 회원가입 (Redis에 인증번호 TTL 5분 저장)
 - 일반 로그인 + JWT (Access 30분 / Refresh 7일)
