@@ -101,11 +101,9 @@ Redis 분산 락 기반 좌석 선점과 실결제 연동까지 직접 구현했
 [3. 좌석 배치도 조회시 성능 저하](troubleshooting/Seat.md)
 
 ## 📄 API Docs
-- Swagger 링크 또는 대표 API 목록
+- [링크](https://docs.google.com/spreadsheets/d/1a8a7dzrK9kdUnBQVnKJNBGZ3xqd1AB7aEs3-YmD0ZKY/edit?gid=0#gid=0)
 
-## 🚀 Getting Started
-- 실행 방법
-- 환경 변수
+
 
 ## 📁 Project Structure
 
