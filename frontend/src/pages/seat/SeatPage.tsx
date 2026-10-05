@@ -284,21 +284,30 @@ export default function SeatPage() {
 
             {/* 구역 탭 */}
             <div style={styles.tabs}>
-              {allSections.map((sec) => (
-                <button
-                  key={sec.sectionId}
-                  style={{
-                    ...styles.tab,
-                    ...(selectedSectionId === sec.sectionId
-                      ? styles.tabActive
-                      : {}),
-                  }}
-                  onClick={() => handleTabClick(sec.sectionId)}
-                >
-                  {sec.name} ({sec.price.toLocaleString()}원)
-                </button>
-              ))}
+              {allSections.map((sec, index) => {
+                // 현재 항목보다 앞에 동일한 name을 가진 구역이 이미 존재하는지 확인
+                const isDuplicate = allSections
+                  .slice(0, index)
+                  .some((prevSec) => prevSec.name === sec.name);
+
+                // 이미 등장한 구역이면 버튼을 그리시 않고 스킵
+                if (isDuplicate) return null;
+
+                return (
+                  <button
+                    key={sec.sectionId}
+                    style={{
+                      ...styles.tab,
+                      ...(selectedSectionId === sec.sectionId ? styles.tabActive : {}),
+                    }}
+                    onClick={() => handleTabClick(sec.sectionId)}
+                  >
+                    {sec.name} ({sec.price.toLocaleString()}원)
+                  </button>
+                );
+              })}
             </div>
+
 
             {/* 무대 */}
             <div style={styles.stage}>무대 STAGE</div>

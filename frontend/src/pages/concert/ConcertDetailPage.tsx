@@ -7,13 +7,13 @@ import { useAuthStore } from '../../store/authStore'; // 로그인 상태를 관
 
 export default function ConcertDetailPage() {
   // 도구 및 상태(state) 선언 영역
-  
+
   // 주소창의 파라미터를 읽기위한 변수 선언
   // useParams(주소창 변수 가로채기)
   // 라우터 주소가 `/도메인/숫자` 혈태로 설계 되어 있을 때, 
   // 실제 주소창에 들어온 `/concert/45`에서 `45`라는 변수 데이터를 쏙 빼오는 도구
   const { concertId } = useParams();
-  
+
   // 다른 페이지로 강제 이동시켜주는 네비게이터 함수 생성
   // useNavigator: HTML의 기본 링크이동(<a href = "...">)는 환면 전체를 새로고침하여 앱을 느리게 만든다.
   // 이를 막기 위해 자바스크립트 코드 내부에서 부드럽게 페이지를 주소창만 바꿔서 이동시켜주는 도구이다.
@@ -43,7 +43,7 @@ export default function ConcertDetailPage() {
    */
   useEffect(() => {
     fetchDetail();
-    
+
   }, [concertId]);
 
   const fetchDetail = async () => {
@@ -99,9 +99,8 @@ export default function ConcertDetailPage() {
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${
-      days[d.getDay()]
-    })`;
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]
+      })`;
   };
 
   if (loading) {
@@ -124,7 +123,7 @@ export default function ConcertDetailPage() {
 
   return (
     // div: 디자인적 구역이나 행/열 레이아웃을 묶을 때 사용하는 가장 대중적인 태크. 줄바꿈이 기본적으로 적용
-    <div style={styles.page}>  
+    <div style={styles.page}>
       <Header />
       <div style={styles.container}>
         {/* 공연 정보 영역 */}
@@ -155,8 +154,10 @@ export default function ConcertDetailPage() {
 
             <div style={styles.gradeTitle}>등급별 가격</div>
             <div style={styles.gradeRow}>
-              {concert.grades.map((g) => (
-                <div key={g.grade} style={styles.gradeCard}>
+              {Array.from(
+                new Map(concert.grades.map((g) => [g.grade, g])).values()
+              ).map((g, idx) => (
+                <div key={`${g.grade}-${idx}`} style={styles.gradeCard}>
                   <div style={styles.gradeName}>{g.grade}</div>
                   <div style={styles.gradePrice}>
                     {g.price.toLocaleString()}원
@@ -212,7 +213,7 @@ export default function ConcertDetailPage() {
                 <button
                   style={
                     schedule.status === 'UPCOMING' ||
-                    schedule.remainingSeatCount === 0
+                      schedule.remainingSeatCount === 0
                       ? styles.btnDisabled
                       : styles.btnPrimary
                   }
@@ -225,8 +226,8 @@ export default function ConcertDetailPage() {
                   {schedule.status === 'UPCOMING'
                     ? '오픈 전'
                     : schedule.remainingSeatCount === 0
-                    ? '매진'
-                    : '예매하기'}
+                      ? '매진'
+                      : '예매하기'}
                 </button>
               </div>
             ))}
