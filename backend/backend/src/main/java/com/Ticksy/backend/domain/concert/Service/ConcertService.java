@@ -11,8 +11,12 @@ import com.Ticksy.backend.domain.seat.enums.SeatStatus;
 import com.Ticksy.backend.global.exception.CustomException;
 import com.Ticksy.backend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +32,13 @@ public class ConcertService {
     private final ConcertRepository concertRepository;
     private final EventScheduleRepository eventScheduleRepository;
     private final VenueRepository venueRepository;
+    private final RedisCacheManager cacheManager;
 
     // 공연 목록 조회
+    @Cacheable(
+            value = "concertList",
+            key = "#date + '_' + #region + '_' + #pageable.pageNumber"
+    )
     public ConcertListPageResponse getConcertList(
             LocalDate date, String region, Pageable pageable
     ) {
@@ -110,6 +119,7 @@ public class ConcertService {
     }
 
     // 공연 상세 조회 (CON-03)
+    @Cacheable(value = "concertDetail", key = "#concertId")
     public ConcertDetailResponse getConcertDetail(Long concertId) {
 
         ConcertEntity concert = concertRepository
@@ -141,4 +151,13 @@ public class ConcertService {
 
         return ConcertDetailResponse.of(concert, scheduleResponses, gradeResponses);
     }
+
+    public void evictConcertListCache() {
+        Cache cache =
+                cacheManager.getCache("concertList");
+        if (cache != null) cache.clear();
+    }
+
+    @CacheEvict(value = "concertDetail", key = "#concertId")
+    public void evictConcertDetailCache(Long concertId) {}
 }

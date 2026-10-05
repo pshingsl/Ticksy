@@ -5,13 +5,14 @@ import com.Ticksy.backend.domain.concert.enums.ScheduleStatus;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
 @Builder
-public class ScheduleResponse {
+public class ScheduleResponse implements Serializable {
 
     private Long scheduleId;
     private LocalDate eventDate;

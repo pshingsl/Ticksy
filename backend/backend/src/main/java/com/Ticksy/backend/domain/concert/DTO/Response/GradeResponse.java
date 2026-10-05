@@ -4,9 +4,11 @@ import com.Ticksy.backend.domain.concert.enums.SeatGrade;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
 @Builder
-public class GradeResponse {
+public class GradeResponse implements Serializable {
 
     private SeatGrade grade;
     private Integer price;

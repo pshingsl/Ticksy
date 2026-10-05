@@ -4,11 +4,15 @@ import com.Ticksy.backend.domain.concert.Entity.ConcertEntity;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Builder
-public class ConcertDetailResponse {
+public class ConcertDetailResponse implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     // 응답시 가져올 데이터 정의
     private Long concertId;
