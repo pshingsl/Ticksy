@@ -1,46 +1,24 @@
-import { useEffect, useState } from 'react'; // 리액트 Hook(기능)
-import { useNavigate, useParams } from 'react-router-dom'; // 페이지 이동 및 주소창 변수 읽기용
-import Header from '../../components/Header'; // 공통 상단  메뉴 바 컴포넌트
-import { getConcertDetail } from '../../api/concert'; // 서버에 공연 상세 데이터를 요청하는 비동기 함수
-import { ConcertDetail } from '../../types/concert'; // TypeScript용 데이터 타입 정의서
-import { useAuthStore } from '../../store/authStore'; // 로그인 상태를 관리하는 전역 저장소
+import { useEffect, useState } from 'react'; 
+import { useNavigate, useParams } from 'react-router-dom'; 
+import Header from '../../components/Header'; 
+import { getConcertDetail } from '../../api/concert';
+import { ConcertDetail } from '../../types/concert'; 
+import { useAuthStore } from '../../store/authStore'; 
 
 export default function ConcertDetailPage() {
-  // 도구 및 상태(state) 선언 영역
 
-  // 주소창의 파라미터를 읽기위한 변수 선언
-  // useParams(주소창 변수 가로채기)
-  // 라우터 주소가 `/도메인/숫자` 혈태로 설계 되어 있을 때, 
-  // 실제 주소창에 들어온 `/concert/45`에서 `45`라는 변수 데이터를 쏙 빼오는 도구
   const { concertId } = useParams();
 
-  // 다른 페이지로 강제 이동시켜주는 네비게이터 함수 생성
-  // useNavigator: HTML의 기본 링크이동(<a href = "...">)는 환면 전체를 새로고침하여 앱을 느리게 만든다.
-  // 이를 막기 위해 자바스크립트 코드 내부에서 부드럽게 페이지를 주소창만 바꿔서 이동시켜주는 도구이다.
   const navigate = useNavigate();
 
-  // 로그인 여부를 확인 변수 선언 -> 전역 로그인 저장소 사용
   const { isLoggedIn } = useAuthStore();
 
-  // 서버에 가져온 콘서트 상세 정보를 저장할 상자(처음엔 데이터가 없으니 null))
-  // useState: 화면이 켜져 있는 동안 계속 유지되고, 값이 바뀌면 화면을 자동으로 다시 그리게 만드는 변수
   const [concert, setConcert] = useState<ConcertDetail | null>(null);
 
-  // 로딩 중인지 화면에 표시할 스위치 상자(기본값은 로딩 중이므로 참으로 설정)
   const [loading, setLoading] = useState(true);
 
-  // 에러가 발생하는지 화면에 표시할 메시지 상자(처음엔 빈 문자열)
   const [error, setError] = useState('');
 
-  /**
-   * useState(화면 제어 전용 타이머/스위치)
-   * 개념: 컴포넌트가 처음 화면에 나타날 때, 사라질 떄, 혹은 특정 변수가 변할 때마다 
-   * 자동으로 실행하고 싶은 **주변 작업(Side Effect)**을 처리
-   * 
-   * useEffect(() => {
-   * console.log("화면이 처음 켜질 때 딱 한 번 실행됩니다!");
-   * }, []); // 뒤에 빈 배열 []을 붙이면 '처음 켜질 때만' 실행하라는 뜻
-   */
   useEffect(() => {
     fetchDetail();
 
@@ -122,7 +100,6 @@ export default function ConcertDetailPage() {
   }
 
   return (
-    // div: 디자인적 구역이나 행/열 레이아웃을 묶을 때 사용하는 가장 대중적인 태크. 줄바꿈이 기본적으로 적용
     <div style={styles.page}>
       <Header />
       <div style={styles.container}>

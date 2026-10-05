@@ -30,16 +30,10 @@ export default function SeatPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isHeld, setIsHeld] = useState(false);
 
-
-  // 상태 추가 8월19일 35~37
   const [selectedSectionId, setSelectedSectionId] =
     useState<number | null>(null);
   const [allSections, setAllSections] = useState<SectionTab[]>([]);
 
-  // concertId는 URL에서 가져와야 하는데
-  // 현재 라우팅이 /seats/:scheduleId 라 concertId가 없음
-  // navigate state로 받거나 URL 변경 필요
-  // 임시로 localStorage에서 가져오는 방식 사용
   useEffect(() => {
     const storedConcertId = localStorage.getItem('currentConcertId');
     if (storedConcertId) {
@@ -89,10 +83,9 @@ export default function SeatPage() {
         cancelHold(Number(scheduleId), selectedSeatIds).catch(() => { });
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // 8월19일 96~116
   const fetchLayout = async () => {
     if (!concertId || !scheduleId) return;
     setLoading(true);
@@ -115,7 +108,7 @@ export default function SeatPage() {
     }
   };
 
-  // 구역별 좌석 조회 8월19일 119~134
+  // 구역별 좌석 조회 
   const fetchSectionSeats = async (sectionId: number) => {
     setLoading(true);
     try {
@@ -133,7 +126,7 @@ export default function SeatPage() {
     }
   };
 
-  // 탭 클릭 핸들러 수정 8월19일 137~142 추가
+  // 탭 클릭 핸들러
   const handleTabClick = async (sectionId: number) => {
     if (isHeld) return;
     setSelectedSectionId(sectionId);
