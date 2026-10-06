@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @Entity
-// TODO: 부하테스트 후 인덱스 적용 후 비교하기
 @Table(name = "reservations")
 public class ReservationEntity {
 

@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity
-// TODO: 부하 테스트 후 인덱스 적용해서 비교하기
 @Table(name = "sections")
 public class SectionEntity {
 

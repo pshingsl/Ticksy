@@ -31,7 +31,6 @@ public class ConcertService {
 
     private final ConcertRepository concertRepository;
     private final EventScheduleRepository eventScheduleRepository;
-    private final VenueRepository venueRepository;
     private final RedisCacheManager cacheManager;
 
     // 공연 목록 조회

@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "payments")
-// TODO: 부하 테스트 후 인덱스 적용 후 비교하기
 public class PaymentEntity {
 
     @Id
