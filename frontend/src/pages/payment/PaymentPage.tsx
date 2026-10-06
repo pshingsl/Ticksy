@@ -15,7 +15,6 @@ export default function PaymentPage() {
     if (!paymentReady || initialized.current) return;
     initialized.current = true;
     initToss();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initToss = async () => {

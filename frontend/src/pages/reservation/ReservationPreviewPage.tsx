@@ -9,10 +9,7 @@ const HOLD_TTL_SECONDS = 300;
 export default function ReservationPreviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // SeatPage에서 navigate 시 state로 전달
   const { scheduleId, seatIds, concertId } = location.state || {};
-
   const [preview, setPreview] = useState<ReservationPreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -52,7 +49,6 @@ export default function ReservationPreviewPage() {
       const data = await getReservationPreview(scheduleId, seatIds);
       setPreview(data);
 
-      // holdExpiredAt 기준으로 남은 시간 계산
       if (data.holdExpiredAt) {
         const expiredAt = new Date(data.holdExpiredAt).getTime();
         const now = new Date().getTime();
@@ -84,14 +80,12 @@ export default function ReservationPreviewPage() {
     setPaying(true);
 
     try {
-      // 결제 요청 → orderId 생성 + Redis 저장
       const paymentReady = await requestPayment(
         scheduleId,
         seatIds,
         preview.totalPrice
       );
 
-      // Toss 결제 페이지로 이동 (state로 데이터 전달)
       navigate('/payment', {
         state: {
           paymentReady,

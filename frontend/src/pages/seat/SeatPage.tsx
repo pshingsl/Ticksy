@@ -10,13 +10,11 @@ import {
 import Header from '../../components/Header';
 
 const MAX_SEAT = 4;
-const HOLD_TTL_SECONDS = 300; // 5분
+const HOLD_TTL_SECONDS = 300; 
 
 export default function SeatPage() {
   const { scheduleId } = useParams();
   const navigate = useNavigate();
-
-  // concertId를 state로 받아옴 (이전 페이지에서 navigate 시 전달)
   const [concertId, setConcertId] = useState<number | null>(null);
   const [layout, setLayout] = useState<SeatLayout | null>(null);
   const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
@@ -48,7 +46,6 @@ export default function SeatPage() {
     if (concertId && scheduleId) {
       fetchLayout();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [concertId, scheduleId]);
 
   // 타이머

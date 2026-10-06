@@ -7,39 +7,34 @@ import {
   signup,
 } from '../../api/auth';
 
-// 회원가입의 단계(유한 상태)를 명시하여 화면 제어에 활용
 type Step =
   | 'emailCheck'
   | 'codeSent'
   | 'verified'
   | 'done';
 
-// 가입 폼 데이터 보관소
 export default function SignupPage() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState(''); // 입력할 이메일
-  const [code, setCode] = useState('');   // 입력할 인증번호
-  const [password, setPassword] = useState(''); // 입력할 비번
+  const [email, setEmail] = useState(''); 
+  const [code, setCode] = useState('');   
+  const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState(''); 
   const [name, setName] = useState('');
 
-  const [step, setStep] = useState<Step>('emailCheck'); // 현재 진행 중인 스텝 단계 표시
-  const [emailChecked, setEmailChecked] = useState(false); // 이메일 중복체크를 통과했는지 여부
+  const [step, setStep] = useState<Step>('emailCheck'); 
+  const [emailChecked, setEmailChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [message, setMessage] = useState(''); // 초록색 성공 안내 문구 저장용
+  const [message, setMessage] = useState(''); 
 
-  // 이메일 중복 확인 -> 인증번호 요청 ->인증번호 확인 -> 회원가입 양식 제출
 
   // 이메일 중복 확인
   const handleCheckEmail = async () => {
-    // 이메일 존재 검사
     if (!email) {
       setError('이메일을 입력해주세요.');
       return;
     }
-    // 이메일 입력하면 성공
     setLoading(true);
     setError('');
     try {
@@ -68,7 +63,7 @@ export default function SignupPage() {
     setError('');
     try {
       await sendVerificationCode(email);
-      setStep('codeSent'); // 다음 단계인 '인증코드 발송 완료' 스텝으로 전환합니다.
+      setStep('codeSent'); 
       setMessage('인증번호를 발송했습니다. 이메일을 확인해주세요.');
     } catch (err: any) {
       const code = err.response?.data?.code;
@@ -125,10 +120,9 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
     try {
-      // 모든 요건 충족 시 백엔드로 데이터를 넘겨 DB에 적재
       await signup({ email, password, name });
       alert(`환영합니다, ${name}님!`);
-      navigate('/login'); // 가입 성공 후 로그인 화면으로 유도
+      navigate('/login'); 
     } catch (err: any) {
       const errCode = err.response?.data?.code;
       if (errCode === 'DUPLICATE_EMAIL') {
@@ -145,10 +139,10 @@ export default function SignupPage() {
   };
 
   const isSignupActive =
-    step === 'verified' && // 이메일 인증이 완료되었고
-    password.length >= 8 && // 비번 8자리 이상인가?
+    step === 'verified' && 
+    password.length >= 8 && 
     password === passwordConfirm &&
-    name.length > 0; // 비밀번호가 일치하고 이름이 기입되어 있는가?
+    name.length > 0;
 
   return (
     <div style={styles.container}>

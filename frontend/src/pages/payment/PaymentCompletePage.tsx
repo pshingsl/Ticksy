@@ -34,7 +34,6 @@ export default function PaymentCompletePage() {
     }
 
     handleConfirm(paymentKey, orderId, Number(amount));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleConfirm = async (
