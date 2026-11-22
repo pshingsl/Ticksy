@@ -1,0 +1,18 @@
+# 성능 측정 전용 프로파일
+# 실행: ./gradlew bootRun --args='--spring.profiles.active=perf'
+# application.yml 설정 위에 아래 값만 덮어씀
+
+spring:
+  jpa:
+    show-sql: false            # SQL 콘솔 출력이 측정값을 오염시키므로 끔
+    properties:
+      hibernate:
+        format_sql: false
+  sql:
+    init:
+      mode: never              # 재시작할 때마다 data.sql이 다시 실행되지 않도록
+
+logging:
+  level:
+    root: WARN
+    com.Ticksy.backend: INFO   # [PERF] 구간 측정 로그는 보이도록
