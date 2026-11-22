@@ -14,9 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -34,15 +37,21 @@ public class SeatService {
     public SeatLayoutResponse getSeatLayout(
             Long concertId, Long scheduleId, Long sectionId
     ) {
+        // [PERF] 구간별 시간 측정 (동작은 기존과 동일, 측정 끝나면 제거하거나 Micrometer로 교체)
+        StopWatch sw = new StopWatch("seatLayout");
+
+        sw.start("1. 회차 조회 (DB)");
         EventScheduleEntity schedule = eventScheduleRepository
                 .findByScheduleIdAndConcert_ConcertId(scheduleId, concertId)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.NOT_FOUND_SCHEDULE));
+        sw.stop();
 
         if (!schedule.isBookingOpen()) {
             throw new CustomException(ErrorCode.BOOKING_NOT_OPEN_YET);
         }
 
+        sw.start("2. 구역+좌석 조회 (DB, fetch join)");
         List<SectionEntity> sections;
 
         if (sectionId != null) {
@@ -54,14 +63,34 @@ public class SeatService {
             sections = sectionRepository
                     .findWithSeatsByScheduleId(scheduleId);
         }
+        int seatCount = sections.stream().mapToInt(s -> s.getSeats().size()).sum();
+        sw.stop();
 
-        List<SectionWithSeatsResponse> sectionResponses = sections.stream()
-                .map(section -> buildSectionResponse(scheduleId, section))
+        // 선점 상태를 MGET으로 한 번에 조회 (기존: 좌석마다 hasKey 1번 → 좌석 1만 개면 왕복 1만 번)
+        sw.start("3. 선점 상태 조회 (Redis, MGET 1회)");
+        List<Long> seatIds = sections.stream()
+                .flatMap(section -> section.getSeats().stream())
+                .map(SeatEntity::getSeatId)
                 .toList();
+        Map<Long, Boolean> holdingBySeatId =
+                seatHoldService.getHoldingStatus(scheduleId, seatIds);
+        sw.stop();
+
+        sw.start("4. DTO 변환");
+        List<SectionWithSeatsResponse> sectionResponses = sections.stream()
+                .map(section -> buildSectionResponse(section, holdingBySeatId))
+                .toList();
+        sw.stop();
 
         // 전체 구역 목록 (탭 표시용 - 좌석 없이 구역 정보만)
+        sw.start("5. 탭용 구역 목록 조회 (DB)");
         List<SectionEntity> allSections =
                 sectionRepository.findBySchedule_ScheduleId(scheduleId);
+        sw.stop();
+
+        log.info("[PERF] seatLayout scheduleId={} sectionId={} seats={} redisCalls={} serviceMs={}\n{}",
+                scheduleId, sectionId, seatCount, seatIds.isEmpty() ? 0 : 1,
+                sw.getTotalTimeMillis(), sw.prettyPrint(TimeUnit.MILLISECONDS));
 
         return SeatLayoutResponse.builder()
                 .scheduleId(scheduleId)
@@ -73,14 +102,14 @@ public class SeatService {
                 .build();
     }
 
-    private SectionWithSeatsResponse buildSectionResponse(Long scheduleId, SectionEntity section) {
+    private SectionWithSeatsResponse buildSectionResponse(
+            SectionEntity section, Map<Long, Boolean> holdingBySeatId
+    ) {
         List<SeatItemResponse> seatItemResponses = section.getSeats().stream()
-                .map(seat -> {
-                    boolean isHolding = seatHoldService.isHolding(
-                            scheduleId, seat.getSeatId()
-                    );
-                    return SeatItemResponse.of(seat, isHolding);
-                })
+                .map(seat -> SeatItemResponse.of(
+                        seat,
+                        holdingBySeatId.getOrDefault(seat.getSeatId(), false)
+                ))
                 .toList();
 
         return SectionWithSeatsResponse.builder()

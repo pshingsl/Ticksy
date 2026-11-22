@@ -11,6 +11,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -76,6 +79,28 @@ public class SeatHoldService {
     public boolean isHolding(Long scheduleId, Long seatId) {
         String holdKey = SEAT_HOLD_PREFIX + scheduleId + ":" + seatId;
         return Boolean.TRUE.equals(redisTemplate.hasKey(holdKey));
+    }
+
+    // 여러 좌석의 선점 여부를 한 번에 확인 (MGET: Redis 왕복 1회)
+    // 좌석마다 hasKey를 호출하면 좌석 수만큼 왕복이 생겨서, 좌석 배치도 조회에서는 이 메서드를 사용
+    public Map<Long, Boolean> getHoldingStatus(Long scheduleId, List<Long> seatIds) {
+        Map<Long, Boolean> result = new HashMap<>();
+        if (seatIds.isEmpty()) {
+            return result;
+        }
+
+        List<String> keys = seatIds.stream()
+                .map(seatId -> SEAT_HOLD_PREFIX + scheduleId + ":" + seatId)
+                .toList();
+
+        // 키 순서대로 값이 돌아오고, 없는 키는 null
+        List<String> values = redisTemplate.opsForValue().multiGet(keys);
+
+        for (int i = 0; i < seatIds.size(); i++) {
+            boolean holding = values != null && values.get(i) != null;
+            result.put(seatIds.get(i), holding);
+        }
+        return result;
     }
 
     // 본인이 선점한 좌석인지 확인
