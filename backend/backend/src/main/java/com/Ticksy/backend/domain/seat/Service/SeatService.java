@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -67,17 +66,14 @@ public class SeatService {
         int seatCount = sections.stream().mapToInt(s -> s.getSeats().size()).sum();
         sw.stop();
 
-        // 기존 코드와 같은 방식(좌석마다 hasKey 1번)으로 선점 상태 조회
-        sw.start("3. 선점 상태 조회 (Redis, 좌석마다 1회)");
-        Map<Long, Boolean> holdingBySeatId = new HashMap<>();
-        for (SectionEntity section : sections) {
-            for (SeatEntity seat : section.getSeats()) {
-                holdingBySeatId.put(
-                        seat.getSeatId(),
-                        seatHoldService.isHolding(scheduleId, seat.getSeatId())
-                );
-            }
-        }
+        // 선점 상태를 MGET으로 한 번에 조회 (기존: 좌석마다 hasKey 1번 → 좌석 1만 개면 왕복 1만 번)
+        sw.start("3. 선점 상태 조회 (Redis, MGET 1회)");
+        List<Long> seatIds = sections.stream()
+                .flatMap(section -> section.getSeats().stream())
+                .map(SeatEntity::getSeatId)
+                .toList();
+        Map<Long, Boolean> holdingBySeatId =
+                seatHoldService.getHoldingStatus(scheduleId, seatIds);
         sw.stop();
 
         sw.start("4. DTO 변환");
@@ -93,7 +89,7 @@ public class SeatService {
         sw.stop();
 
         log.info("[PERF] seatLayout scheduleId={} sectionId={} seats={} redisCalls={} serviceMs={}\n{}",
-                scheduleId, sectionId, seatCount, holdingBySeatId.size(),
+                scheduleId, sectionId, seatCount, seatIds.isEmpty() ? 0 : 1,
                 sw.getTotalTimeMillis(), sw.prettyPrint(TimeUnit.MILLISECONDS));
 
         return SeatLayoutResponse.builder()
