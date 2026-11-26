@@ -51,6 +51,8 @@ export default function PaymentCompletePage() {
 
       if (code === 'SEAT_HOLD_EXPIRED') {
         setError('좌석 선점이 만료되었습니다. 처음부터 다시 시도해주세요.');
+      } else if (code === 'PRICE_MISMATCH') {
+        setError('결제 금액이 주문 금액과 일치하지 않아 결제가 진행되지 않았습니다.');
       } else if (code === 'PAYMENT_CONFIRM_FAILED') {
         setError('결제 승인에 실패했습니다. 고객센터에 문의해주세요.');
       } else {

@@ -20,12 +20,12 @@ public class OrderRedisService {
 
     // OrderId -> scheduleId:seatId1,seatId2" 형태로 저장
     public void saveOrderInfo(
-            String orderId, Long scheduleId, List<Long> seatIds
+            String orderId, Long scheduleId, List<Long> seatIds, Integer amount
     ) {
         String value = scheduleId + ":" +
                 seatIds.stream()
                         .map(String::valueOf)
-                        .collect(Collectors.joining(","));
+                        .collect(Collectors.joining(",")) + ":" + amount;
 
         redisTemplate.opsForValue().set(
                 ORDER_PREFIX + orderId,
@@ -40,7 +40,7 @@ public class OrderRedisService {
         String value = redisTemplate.opsForValue()
                 .get(ORDER_PREFIX + orderId);
 
-        if(value == null) {
+        if (value == null) {
             throw new CustomException(ErrorCode.SEAT_HOLD_EXPIRED);
         }
         return value;
