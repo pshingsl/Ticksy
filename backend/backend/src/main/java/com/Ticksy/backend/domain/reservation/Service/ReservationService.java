@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -177,7 +178,8 @@ public class ReservationService {
         orderRedisService.saveOrderInfo(
                 orderId,
                 request.getScheduleId(),
-                request.getSeatIds()
+                request.getSeatIds(),
+                calculatedPrice
         );
 
         log.info("결제 요청 생성: orderId={}, userId={}", orderId, userId);
@@ -206,6 +208,15 @@ public class ReservationService {
         List<Long> seatIds = Arrays.stream(parts[1].split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
+        Integer expectedAmount = Integer.parseInt(parts[2]);
+
+        // 금액 검증 (위변조 방지)
+        // 결제 요청 시 서버에서 검증해 저장한 금액과 승인 요청 금액이 다르면 Toss 승인 전에 차단
+        if (!expectedAmount.equals(request.getAmount())) {
+            log.warn("결제 금액 불일치: orderId={}, expected={}, requested={}",
+                    request.getOrderId(), expectedAmount, request.getAmount());
+            throw new CustomException(ErrorCode.PRICE_MISMATCH);
+        }
 
         // 선점 만료 재확인
         for (Long seatId : seatIds) {

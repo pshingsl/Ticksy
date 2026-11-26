@@ -10,7 +10,7 @@ import {
 import Header from '../../components/Header';
 
 const MAX_SEAT = 4;
-const HOLD_TTL_SECONDS = 300; 
+const HOLD_TTL_SECONDS = 300;
 
 export default function SeatPage() {
   const { scheduleId } = useParams();
@@ -99,7 +99,14 @@ export default function SeatPage() {
         await fetchSectionSeats(firstSectionId);
       }
     } catch (err: any) {
-      setError('좌석 정보를 불러오지 못했습니다.');
+      const code = err.response?.data?.code;
+      if (code === 'BOOKING_NOT_OPEN_YET') {
+        setError('아직 예매 오픈 전입니다.');
+      } else if (code === 'NOT_FOUND_SCHEDULE') {
+        setError('존재하지 않는 회차입니다.');
+      } else {
+        setError('좌석 정보를 불러오지 못했습니다.');
+      }
     } finally {
       setLoading(false);
     }
@@ -181,6 +188,8 @@ export default function SeatPage() {
         setHoldError('최대 4석까지 예매 가능합니다.');
       } else if (code === 'BOOKING_NOT_OPEN_YET') {
         setHoldError('예매 오픈 전입니다.');
+      } else if (code === 'NOT_FOUND_SCHEDULE') {
+        setHoldError('존재하지 않는 회차입니다.');
       } else {
         setHoldError('선점 요청 중 오류가 발생했습니다.');
       }

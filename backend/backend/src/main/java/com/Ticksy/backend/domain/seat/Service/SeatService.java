@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +139,7 @@ public class SeatService {
 
         // 예매 오픈 여부 확인
         if (!schedule.isBookingOpen()) {
-            new CustomException(ErrorCode.BOOKING_NOT_OPEN_YET);
+            throw new CustomException(ErrorCode.BOOKING_NOT_OPEN_YET);
         }
 
         List<SeatEntity> seats = seatRepository.findBySeatIdIn(seatIds);
