@@ -28,7 +28,7 @@ Redis 분산 락 기반 좌석 선점과 실결제 연동까지 직접 구현했
 
 ## 🛠 Tech Stack
 ### Backend
-<img src="https://img.shields.io/badge/Java 21-007396?style=for-the-badge&logo=openjdk&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot 4.0.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> <img src="https://img.shields.io/badge/Spring Security 7.0.x-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/JWT 0.12.5-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"> <img src="https://img.shields.io/badge/Redisson 3.43.0-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/Swagger (SpringDoc 3.0.3)-85EA2D?style=for-the-badge&logo=swagger&logoColor=black">
+<img src="https://img.shields.io/badge/Java 21-007396?style=for-the-badge&logo=openjdk&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot 4.0.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> <img src="https://img.shields.io/badge/Spring Security 7.0.x-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/JWT 0.12.5-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"> <img src="https://img.shields.io/badge/Redisson 4.4.0-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/Swagger (SpringDoc 3.0.3)-85EA2D?style=for-the-badge&logo=swagger&logoColor=black">
 
 ### Frontend
 <img src="https://img.shields.io/badge/React 19.x-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"> <img src="https://img.shields.io/badge/TypeScript 5.x-007ACC?style=for-the-badge&logo=typescript&logoColor=white"> <img src="https://img.shields.io/badge/React Router 7.x-CA4245?style=for-the-badge&logo=react-router&logoColor=white"> <img src="https://img.shields.io/badge/Axios 1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white"> <img src="https://img.shields.io/badge/Zustand 5.x-000000?style=for-the-badge&logo=Zustand&logoColor=white"> <img src="https://img.shields.io/badge/Toss_Payments-0064FF?style=for-the-badge&logo=toss&logoColor=white">
@@ -36,8 +36,8 @@ Redis 분산 락 기반 좌석 선점과 실결제 연동까지 직접 구현했
 ### Database
 <img src="https://img.shields.io/badge/MySQL 8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> <img src="https://img.shields.io/badge/Redis 7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white">
 
-### Infra
-<img src="https://img.shields.io/badge/Apache JMeter 5.6.x-D22128?style=for-the-badge&logo=apachejmeter&logoColor=white"> <img src="https://img.shields.io/badge/k6-7D64FF?style=for-the-badge&logo=k6&logoColor=white">
+### Test
+<img src="https://img.shields.io/badge/JUnit 5-25A162?style=for-the-badge&logo=junit5&logoColor=white"> <img src="https://img.shields.io/badge/Mockito-78A641?style=for-the-badge&logoColor=white"> <img src="https://img.shields.io/badge/Testcontainers-2496ED?style=for-the-badge&logo=docker&logoColor=white"> <img src="https://img.shields.io/badge/Apache JMeter 5.6.x-D22128?style=for-the-badge&logo=apachejmeter&logoColor=white"> <img src="https://img.shields.io/badge/k6-7D64FF?style=for-the-badge&logo=k6&logoColor=white">
 
 ## 🏗 아키텍처 및 ERD
 
@@ -98,6 +98,17 @@ Redis 분산 락 기반 좌석 선점과 실결제 연동까지 직접 구현했
 [1. 좌석 선점 동시성](troubleshooting/Race.md) <br>
 [2. 결제 중복 호출](troubleshooting/Payment.md)<br>
 [3. 좌석 배치도 조회시 성능 저하](troubleshooting/Seat.md)
+
+## 🧪테스트
+
+| 구분 | 대상 | 내용 |
+|---|---|---|
+| 단위 테스트 (JUnit 5, Mockito) | SeatService | 좌석 선점 규칙, 일부 실패 시 롤백 |
+| 단위 테스트 (JUnit 5, Mockito) | ReservationService | 결제 금액 위변조 차단, 선점/주문 만료 시 Toss 승인 미호출 |
+| 통합 테스트 (Testcontainers) | SeatHoldService | 실제 Redis에서 100건 동시 선점 시 1건만 성공 |
+
+실행 (Docker 실행 필요)
+./gradlew test
 
 ## 📄 API Docs
 - [링크](https://docs.google.com/spreadsheets/d/1a8a7dzrK9kdUnBQVnKJNBGZ3xqd1AB7aEs3-YmD0ZKY/edit?gid=0#gid=0)
