@@ -28,14 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/*
- * SeatService 단위 테스트
- *
- * - 좌석 선점(holdSeats)의 비즈니스 로직만 검증한다.
- * - DB(Repository)와 Redis(SeatHoldService)는 Mockito로 만든 가짜 객체를 사용한다.
- *   → 실제 DB, Redis 없이 실행되므로 빠르고, 원하는 상황(일부 좌석만 실패 등)을 쉽게 만들 수 있다.
- * - 분산 락이 실제로 동시 요청을 막는지는 SeatHoldService 통합 테스트에서 별도로 검증한다.
- */
+
 @ExtendWith(MockitoExtension.class)
 public class SeatServiceTest {
 
@@ -262,7 +255,6 @@ public class SeatServiceTest {
         verify(seatHoldService, never()).cancelHold(anyLong(), anyLong());
     }
 
-    // ===== 테스트용 객체 생성 헬퍼 =====
 
     // 예매가 이미 열린 회차 (어제 오픈)
     private EventScheduleEntity openSchedule() {
