@@ -10,6 +10,7 @@ import com.Ticksy.backend.domain.seat.Repository.SeatRepository;
 import com.Ticksy.backend.domain.seat.enums.SeatStatus;
 import com.Ticksy.backend.global.exception.CustomException;
 import com.Ticksy.backend.global.exception.ErrorCode;
+import com.Ticksy.backend.domain.seat.DTO.Response.SeatHoldResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -135,7 +136,7 @@ public class SeatService {
         EventScheduleEntity schedule = eventScheduleRepository
                 .findById(scheduleId)
                 .orElseThrow(() ->
-                        new CustomException(ErrorCode.NOT_FOUND_USER));
+                        new CustomException(ErrorCode.NOT_FOUND_SCHEDULE));
 
         // 예매 오픈 여부 확인
         if (!schedule.isBookingOpen()) {
@@ -207,4 +208,5 @@ public class SeatService {
         log.info("좌석 선점 취소: schedule={}, seats={}, user={}",
                 scheduleId, seatIds, userId);
     }
+
 }
